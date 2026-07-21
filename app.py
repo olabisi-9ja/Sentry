@@ -161,27 +161,27 @@ async def get_reports(
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    query = "SELECT * FROM reports WHERE community_id = ?"
+    query = "SELECT * FROM reports WHERE community_id = %s"
     params = [community_id]
 
     if category and category.lower() != "all":
-        query += " AND category = ?"
+        query += " AND category = %s"
         params.append(category.lower())
 
     if is_urgent is not None:
-        query += " AND is_urgent = ?"
+        query += " AND is_urgent = %s"
         params.append(1 if is_urgent else 0)
 
     if status:
-        query += " AND status = ?"
+        query += " AND status = %s"
         params.append(status)
 
     if cluster_id:
-        query += " AND cluster_id = ?"
+        query += " AND cluster_id = %s"
         params.append(cluster_id)
 
     if search:
-        query += " AND (raw_text LIKE ? OR location LIKE ? OR anonymized_text LIKE ?)"
+        query += " AND (raw_text LIKE %s OR location LIKE %s OR anonymized_text LIKE %s)"
         params.extend([f"%{search}%", f"%{search}%", f"%{search}%"])
 
     query += " ORDER BY created_at DESC"
@@ -218,7 +218,7 @@ async def ask_mode(query: AskQuery):
 async def get_clusters(community_id: str = Query("kwasu_main")):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM clusters WHERE community_id = ? ORDER BY updated_at DESC", (community_id,))
+    cursor.execute("SELECT * FROM clusters WHERE community_id = %s ORDER BY updated_at DESC", (community_id,))
     clusters = [dict(c) for c in cursor.fetchall()]
     conn.close()
     return {"clusters": clusters, "community_id": community_id}
@@ -227,14 +227,14 @@ async def get_clusters(community_id: str = Query("kwasu_main")):
 async def get_cluster_detail(cluster_id: str):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM clusters WHERE id = ?", (cluster_id,))
+    cursor.execute("SELECT * FROM clusters WHERE id = %s", (cluster_id,))
     cluster_row = cursor.fetchone()
     if not cluster_row:
         conn.close()
         raise HTTPException(status_code=404, detail="Cluster not found.")
 
     cluster = dict(cluster_row)
-    cursor.execute("SELECT * FROM reports WHERE cluster_id = ? ORDER BY created_at DESC", (cluster_id,))
+    cursor.execute("SELECT * FROM reports WHERE cluster_id = %s ORDER BY created_at DESC", (cluster_id,))
     linked_reports = [dict(r) for r in cursor.fetchall()]
     conn.close()
 
@@ -244,7 +244,7 @@ async def get_cluster_detail(cluster_id: str):
 async def get_situation_room(community_id: str = Query("kwasu_main")):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM briefs WHERE community_id = ? ORDER BY generated_at DESC LIMIT 1", (community_id,))
+    cursor.execute("SELECT * FROM briefs WHERE community_id = %s ORDER BY generated_at DESC LIMIT 1", (community_id,))
     latest_brief = cursor.fetchone()
     conn.close()
 
@@ -269,16 +269,16 @@ async def get_admin_stats(community_id: str = Query("kwasu_main")):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT COUNT(*) as total FROM reports WHERE community_id = ?", (community_id,))
+    cursor.execute("SELECT COUNT(*) as total FROM reports WHERE community_id = %s", (community_id,))
     total_reports = cursor.fetchone()["total"]
 
-    cursor.execute("SELECT COUNT(*) as open FROM clusters WHERE community_id = ? AND status = 'active'", (community_id,))
+    cursor.execute("SELECT COUNT(*) as open FROM clusters WHERE community_id = %s AND status = 'active'", (community_id,))
     open_clusters = cursor.fetchone()["open"]
 
-    cursor.execute("SELECT COUNT(*) as urgent FROM reports WHERE community_id = ? AND is_urgent = 1 AND status = 'open'", (community_id,))
+    cursor.execute("SELECT COUNT(*) as urgent FROM reports WHERE community_id = %s AND is_urgent = TRUE AND status = 'open'", (community_id,))
     urgent_unresolved = cursor.fetchone()["urgent"]
 
-    cursor.execute("SELECT category, COUNT(*) as cat_count FROM reports WHERE community_id = ? GROUP BY category", (community_id,))
+    cursor.execute("SELECT category, COUNT(*) as cat_count FROM reports WHERE community_id = %s GROUP BY category", (community_id,))
     category_counts = {row["category"]: row["cat_count"] for row in cursor.fetchall()}
 
     conn.close()
@@ -297,7 +297,7 @@ async def get_admin_stats(community_id: str = Query("kwasu_main")):
 async def get_urgent_queue(community_id: str = Query("kwasu_main")):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM reports WHERE community_id = ? AND is_urgent = 1 AND status != 'resolved' ORDER BY urgency_score DESC, created_at DESC", (community_id,))
+    cursor.execute("SELECT * FROM reports WHERE community_id = %s AND is_urgent = TRUE AND status != 'resolved' ORDER BY urgency_score DESC, created_at DESC", (community_id,))
     urgent_reports = [dict(r) for r in cursor.fetchall()]
     conn.close()
     return {"urgent_reports": urgent_reports, "count": len(urgent_reports), "community_id": community_id}
@@ -307,7 +307,7 @@ async def action_triage(report_id: int, payload: TriageAction):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM reports WHERE id = ?", (report_id,))
+    cursor.execute("SELECT * FROM reports WHERE id = %s", (report_id,))
     report = cursor.fetchone()
     if not report:
         conn.close()
@@ -317,11 +317,11 @@ async def action_triage(report_id: int, payload: TriageAction):
     if payload.action == 'dispatch':
         new_status = 'dispatched'
 
-    cursor.execute("UPDATE reports SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?", (new_status, report_id))
+    cursor.execute("UPDATE reports SET status = %s, updated_at = CURRENT_TIMESTAMP WHERE id = %s", (new_status, report_id))
 
     cursor.execute("""
         INSERT INTO admin_actions (report_id, action, notes, actor)
-        VALUES (?, ?, ?, ?)
+        VALUES (%s, %s, %s, %s)
     """, (report_id, payload.action, payload.notes or f"Action set to {new_status}", payload.actor))
 
     conn.commit()

@@ -1,32 +1,31 @@
-import sqlite3
+import psycopg2
+import psycopg2.extras
 import os
 import json
 from datetime import datetime, timedelta
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "sentry.db")
-
 def get_db_connection():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
+    db_url = os.getenv("DATABASE_URL")
+    if not db_url:
+        raise ValueError("DATABASE_URL environment variable is not set")
+    conn = psycopg2.connect(db_url, connection_factory=psycopg2.extras.RealDictConnection)
     return conn
 
 def init_db():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("PRAGMA journal_mode=WAL;")
-
     # Reports Table with community_id Multi-Tenancy Architecture
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS reports (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         community_id TEXT NOT NULL DEFAULT 'kwasu_main',
         raw_text TEXT NOT NULL,
         anonymized_text TEXT NOT NULL,
         category TEXT NOT NULL,
         severity INTEGER NOT NULL DEFAULT 1,
         urgency_score REAL NOT NULL DEFAULT 0.0,
-        is_urgent BOOLEAN NOT NULL DEFAULT 0,
+        is_urgent BOOLEAN NOT NULL DEFAULT FALSE,
         location TEXT NOT NULL,
         cluster_id TEXT,
         status TEXT NOT NULL DEFAULT 'open',
@@ -59,7 +58,7 @@ def init_db():
     # Situation Briefs Table
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS briefs (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         community_id TEXT NOT NULL DEFAULT 'kwasu_main',
         period_title TEXT NOT NULL,
         summary_bullets TEXT NOT NULL,
@@ -71,7 +70,7 @@ def init_db():
     # Admin Actions Log Table
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS admin_actions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         report_id INTEGER NOT NULL,
         action TEXT NOT NULL,
         notes TEXT,
@@ -113,8 +112,9 @@ def seed_data(conn):
     ]
     for comm in communities:
         cursor.execute("""
-            INSERT OR IGNORE INTO communities (community_id, name, region, type)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO communities (community_id, name, region, type)
+            VALUES (%s, %s, %s, %s)
+            ON CONFLICT (community_id) DO NOTHING
         """, (comm["community_id"], comm["name"], comm["region"], comm["type"]))
 
     conn.commit()

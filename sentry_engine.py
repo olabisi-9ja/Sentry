@@ -175,7 +175,7 @@ The JSON must contain the following keys:
         cursor = conn.cursor()
         cursor.execute("""
             SELECT id, title, category, report_count, summary FROM clusters
-            WHERE community_id = ? AND category = ? AND status = 'active'
+            WHERE community_id = %s AND category = %s AND status = 'active'
         """, (community_id, category))
         active_clusters = cursor.fetchall()
 
@@ -184,7 +184,7 @@ The JSON must contain the following keys:
                 c_id = cluster["id"]
                 new_count = cluster["report_count"] + 1
                 cursor.execute("""
-                    UPDATE clusters SET report_count = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?
+                    UPDATE clusters SET report_count = %s, updated_at = CURRENT_TIMESTAMP WHERE id = %s
                 """, (new_count, c_id))
                 return c_id, f"Clustered with {new_count} similar reports in {community_id}. {cluster['summary']}"
 
@@ -196,7 +196,7 @@ The JSON must contain the following keys:
 
         cursor.execute("""
             INSERT INTO clusters (id, community_id, title, category, primary_location, severity, status, report_count, summary)
-            VALUES (?, ?, ?, ?, ?, ?, 'active', 1, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, 'active', 1, %s)
         """, (new_c_id, community_id, new_title, category, location, severity, new_summary))
 
         return new_c_id, f"New incident log created [{new_c_id}] for community [{community_id}]."
@@ -218,7 +218,7 @@ The JSON must contain the following keys:
         cursor = conn.cursor()
         cursor.execute("""
             INSERT INTO reports (community_id, raw_text, anonymized_text, category, severity, urgency_score, is_urgent, location, cluster_id, status, confidence_score, source_type, reporter_handle, ai_reply)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'open', ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'open', %s, %s, %s, %s)
         """, (
             community_id,
             raw_text,
@@ -238,7 +238,7 @@ The JSON must contain the following keys:
         report_id = cursor.lastrowid
         conn.commit()
 
-        cursor.execute("SELECT * FROM reports WHERE id = ?", (report_id,))
+        cursor.execute("SELECT * FROM reports WHERE id = %s", (report_id,))
         report_row = dict(cursor.fetchone())
         conn.close()
 
@@ -253,21 +253,21 @@ The JSON must contain the following keys:
         keywords = [w for w in re.findall(r'\w+', q_lower) if len(w) > 3 and w not in ["what", "where", "is", "there", "have", "this", "that", "from", "with"]]
 
         if not keywords:
-            cursor.execute("SELECT * FROM reports WHERE community_id = ? ORDER BY created_at DESC LIMIT 5", (community_id,))
+            cursor.execute("SELECT * FROM reports WHERE community_id = %s ORDER BY created_at DESC LIMIT 5", (community_id,))
         else:
             query_parts = []
             params = [community_id]
             for kw in keywords:
-                query_parts.append("(raw_text LIKE ? OR location LIKE ? OR category LIKE ?)")
+                query_parts.append("(raw_text LIKE %s OR location LIKE %s OR category LIKE %s)")
                 params.extend([f"%{kw}%", f"%{kw}%", f"%{kw}%"])
             
-            sql = f"SELECT * FROM reports WHERE community_id = ? AND ({' OR '.join(query_parts)}) ORDER BY created_at DESC LIMIT 6"
+            sql = f"SELECT * FROM reports WHERE community_id = %s AND ({' OR '.join(query_parts)}) ORDER BY created_at DESC LIMIT 6"
             cursor.execute(sql, params)
 
         matched_reports = [dict(r) for r in cursor.fetchall()]
 
         if not matched_reports:
-            cursor.execute("SELECT * FROM reports WHERE community_id = ? ORDER BY created_at DESC LIMIT 3", (community_id,))
+            cursor.execute("SELECT * FROM reports WHERE community_id = %s ORDER BY created_at DESC LIMIT 3", (community_id,))
             matched_reports = [dict(r) for r in cursor.fetchall()]
 
         conn.close()
@@ -310,7 +310,7 @@ The JSON must contain the following keys:
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        cursor.execute("SELECT * FROM clusters WHERE community_id = ? AND status != 'resolved' ORDER BY severity DESC", (community_id,))
+        cursor.execute("SELECT * FROM clusters WHERE community_id = %s AND status != 'resolved' ORDER BY severity DESC", (community_id,))
         clusters = [dict(c) for c in cursor.fetchall()]
 
         overall_status = "ELEVATED" if any(c["severity"] >= 4 for c in clusters) else "MODERATE"
@@ -338,7 +338,7 @@ The JSON must contain the following keys:
 
         cursor.execute("""
             INSERT INTO briefs (community_id, period_title, summary_bullets, overall_status)
-            VALUES (?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s)
         """, (community_id, f"Sentry Community Intelligence Brief [{community_id}]", summary_json, overall_status))
 
         conn.commit()
