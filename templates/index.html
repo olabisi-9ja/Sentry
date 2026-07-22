@@ -3,1093 +3,630 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#030305">
+<meta name="theme-color" content="#000000">
 <title>Sentry — AI Intelligence Hub</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap');
 
   :root {
     color-scheme: dark;
-    --bg-base: #030305;
-    --bg-mesh: radial-gradient(circle at top right, rgba(23, 186, 166, 0.08), transparent 50%),
-               radial-gradient(circle at bottom left, rgba(139, 92, 246, 0.05), transparent 50%);
-    --surface: color-mix(in srgb, #ffffff 2%, transparent);
-    --surface-raised: color-mix(in srgb, #ffffff 4%, transparent);
-    --surface-glass: color-mix(in srgb, #000000 60%, transparent);
-    --divider: color-mix(in srgb, #ffffff 8%, transparent);
-    --text: #F8FAFC;
-    --text-muted: #94A3B8;
-    --text-faint: #64748B;
+    --bg-base: #000000;
+    --surface: #000000;
+    --surface-hover: rgba(255, 255, 255, 0.03);
+    --divider: #2F3336;
+    --text: #E7E9EA;
+    --text-muted: #71767B;
     
-    /* Core Semantic Colors */
-    --teal: #14F1D9;
-    --teal-dim: color-mix(in srgb, var(--teal) 15%, transparent);
-    --security: #FF4444;
-    --power: #FBBF24;
-    --water: #38BDF8;
-    --transport: #C084FC;
-    --sanitation: #34D399;
-    --road_conditions: #FB923C;
-    --community_patrol: #F472B6;
+    /* Brand color */
+    --brand: #1D9BF0;
+    --brand-hover: #1A8CD8;
+    
+    /* Semantic Colors */
+    --teal: #00BA7C;
+    --security: #F91880;
+    --power: #FFD400;
+    --water: #1D9BF0;
+    --transport: #7856FF;
+    --sanitation: #00BA7C;
+    --road_conditions: #FF7A00;
   }
 
-  /* Modern Scrollbar & Base Resets */
   * { 
     box-sizing: border-box; margin: 0; padding: 0; 
-    scrollbar-color: var(--teal-dim) transparent;
-    scrollbar-width: thin;
     -webkit-tap-highlight-color: transparent;
   }
 
   body {
     background-color: var(--bg-base);
-    background-image: var(--bg-mesh);
-    background-attachment: fixed;
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     color: var(--text);
     min-height: 100vh;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 24px 16px;
+    justify-content: center;
     line-height: 1.5;
+    overscroll-behavior-y: none;
   }
 
-  /* App Mode Header */
-  .app-mode-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  /* Main App Container */
+  .app-container {
     width: 100%;
-    max-width: 440px;
-    margin-bottom: 20px;
-    padding: 8px 12px;
-    background: var(--surface);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--divider);
-    border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-  }
-
-  .app-mode-title {
-    font-weight: 700;
-    color: var(--text);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    letter-spacing: 0.02em;
-  }
-
-  .community-select-top {
-    background: var(--surface-raised);
-    border: 1px solid var(--teal-dim);
-    color: var(--teal);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    padding: 6px 12px;
-    border-radius: 100px;
-    outline: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  .community-select-top:hover {
-    background: var(--teal-dim);
-    border-color: var(--teal);
-  }
-
-  .mode-switch-btn {
-    background: var(--surface-raised);
-    border: 1px solid var(--divider);
-    color: var(--text);
-    padding: 6px 12px;
-    border-radius: 100px;
-    cursor: pointer;
-    font-size: 11px;
-    font-weight: 600;
-    transition: background 0.2s ease;
-  }
-  .mode-switch-btn:hover { background: color-mix(in srgb, #ffffff 8%, transparent); }
-
-  /* Device Frame Container */
-  .frame-wrapper {
-    transition: max-width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    width: 100%;
-    max-width: 400px;
-  }
-  .frame-wrapper.studio-mode {
-    max-width: 1100px;
-  }
-
-  .frame {
-    width: 100%;
-    min-height: 840px;
-    background: var(--surface-glass);
-    backdrop-filter: blur(24px);
-    border-radius: 44px;
-    border: 1px solid var(--divider);
-    overflow: hidden;
+    max-width: 600px;
+    min-height: 100vh;
+    border-left: 1px solid var(--divider);
+    border-right: 1px solid var(--divider);
     position: relative;
-    box-shadow: 0 24px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
     display: flex;
     flex-direction: column;
   }
-
-  .studio-mode .frame {
-    border-radius: 28px;
-    min-height: 800px;
+  
+  @media (max-width: 600px) {
+    .app-container {
+      border-left: none;
+      border-right: none;
+    }
   }
 
-  /* Status Bar */
-  .statusbar {
-    height: 44px;
+  /* Top Header (Sticky) */
+  .top-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--divider);
+  }
+
+  .header-top-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 24px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-    flex-shrink: 0;
+    padding: 12px 16px;
+    height: 53px;
   }
 
-  /* Top Bar */
-  .topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 24px 16px;
-    flex-shrink: 0;
-  }
-  .wordmark {
-    font-weight: 800;
-    font-size: 24px;
-    letter-spacing: -0.04em;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  .pulse-dot {
-    width: 10px;
-    height: 10px;
+  .header-avatar {
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    background: var(--teal);
-    box-shadow: 0 0 0 4px var(--teal-dim);
-    animation: pulseGlow 2s infinite cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  @keyframes pulseGlow {
-    0% { box-shadow: 0 0 0 0px var(--teal-dim); }
-    70% { box-shadow: 0 0 0 10px rgba(20,241,217,0); }
-    100% { box-shadow: 0 0 0 0px rgba(20,241,217,0); }
-  }
-
-  .badge-tag {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    background: var(--surface-raised);
-    border: 1px solid var(--divider);
-    padding: 4px 10px;
-    border-radius: 100px;
-    color: var(--text-muted);
-    font-weight: 600;
-  }
-
-  /* Emergency Flash Banner */
-  .emergency-banner {
-    background: color-mix(in srgb, var(--security) 15%, transparent);
-    border-top: 1px solid color-mix(in srgb, var(--security) 40%, transparent);
-    border-bottom: 1px solid color-mix(in srgb, var(--security) 40%, transparent);
-    color: #FFA5A5;
-    padding: 10px 24px;
-    font-size: 13px;
-    display: none;
+    background: var(--divider);
+    display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     font-weight: 700;
-    animation: alertPulse 1s infinite alternate;
+    font-size: 14px;
+    cursor: pointer;
   }
-  @keyframes alertPulse {
-    from { background: color-mix(in srgb, var(--security) 10%, transparent); }
-    to { background: color-mix(in srgb, var(--security) 25%, transparent); }
+
+  .header-logo {
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: -0.05em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .header-logo svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+  }
+
+  .header-settings {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  /* Tabs Bar */
+  .tabs-bar {
+    display: flex;
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs-bar::-webkit-scrollbar { display: none; }
+  
+  .tab-item {
+    flex: 1;
+    min-width: fit-content;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px;
+    height: 53px;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-weight: 500;
+    color: var(--text-muted);
+    position: relative;
+  }
+  .tab-item:hover {
+    background: var(--surface-hover);
+  }
+  .tab-item.active {
+    font-weight: 700;
+    color: var(--text);
+  }
+  .tab-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 56px;
+    height: 4px;
+    background: var(--brand);
+    border-radius: 9999px;
   }
 
   /* Screen Container */
   .screen-container {
     flex: 1;
-    overflow-y: auto;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    scroll-behavior: smooth;
+    padding-bottom: 70px; /* Space for bottom nav */
   }
-  .screen-container::-webkit-scrollbar { display: none; }
 
-  /* View Transitions for tabs */
   .view-screen {
     display: none;
     flex-direction: column;
     width: 100%;
-    min-height: 100%;
-    padding-bottom: 90px; /* Space for floating nav */
-    view-transition-name: view-screen;
   }
   .view-screen.active {
     display: flex;
   }
 
-  ::view-transition-old(view-screen) {
-    animation: fade-out 0.2s ease forwards;
-  }
-  ::view-transition-new(view-screen) {
-    animation: slide-fade-in 0.3s ease forwards;
-  }
-  @keyframes fade-out { to { opacity: 0; transform: translateY(-4px); } }
-  @keyframes slide-fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-  /* Situation Room Card */
-  .situation-card {
-    margin: 4px 16px 20px;
-    background: linear-gradient(180deg, var(--surface-raised) 0%, rgba(20,241,217,0.03) 100%);
-    border: 1px solid color-mix(in srgb, var(--teal) 20%, var(--divider));
-    border-radius: 24px;
-    padding: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  }
-  .situation-head {
-    display: flex;
+  /* Emergency Banner */
+  .emergency-banner {
+    background: var(--security);
+    color: #fff;
+    padding: 10px 16px;
+    font-size: 14px;
+    display: none;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 14px;
-  }
-  .situation-badge {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    color: var(--teal);
-    background: var(--teal-dim);
-    padding: 4px 10px;
-    border-radius: 100px;
-    text-transform: uppercase;
-  }
-  .situation-title {
-    font-weight: 700;
-    font-size: 16px;
-    color: var(--text);
-  }
-  .situation-time { font-size: 12px; color: var(--text-faint); margin-left: auto; font-family:'JetBrains Mono', monospace;}
-  .situation-body { font-size: 14px; line-height: 1.6; color: var(--text-muted); margin-bottom: 16px; text-wrap: pretty; }
-  .situation-body .item { display: flex; gap: 12px; margin-bottom: 8px; align-items: flex-start; }
-  .situation-body .item .dot { color: var(--teal); flex-shrink: 0; font-size: 10px; margin-top: 5px; }
-  .situation-status {
-    border-top: 1px solid var(--divider);
-    padding-top: 12px;
-    display: flex;
     justify-content: space-between;
-    font-size: 12px;
-    color: var(--text-muted);
+    font-weight: 700;
   }
 
-  /* Filter Bar */
-  .filter-bar {
-    display: flex;
-    gap: 10px;
-    overflow-x: auto;
-    padding: 0 16px 16px;
-    scrollbar-width: none; /* Firefox */
-  }
-  .filter-bar::-webkit-scrollbar { display: none; }
-  .filter-pill {
-    flex-shrink: 0;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 8px 16px;
-    border-radius: 100px;
-    background: var(--surface);
-    border: 1px solid var(--divider);
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  .filter-pill:hover { background: var(--surface-raised); border-color: color-mix(in srgb, var(--text-muted) 30%, transparent); }
-  .filter-pill.active {
-    background: var(--text);
-    color: var(--bg-base);
-    border-color: var(--text);
-    box-shadow: 0 4px 15px color-mix(in srgb, #ffffff 20%, transparent);
-  }
-
-  /* Threads Post Component */
+  /* Post Component (Timeline) */
   .post {
-    padding: 20px 16px;
+    padding: 12px 16px;
     border-bottom: 1px solid var(--divider);
+    display: flex;
+    gap: 12px;
     transition: background 0.2s;
+    cursor: pointer;
   }
-  .post:hover { background: color-mix(in srgb, #ffffff 1%, transparent); }
+  .post:hover { background: var(--surface-hover); }
   
-  .post-head { display: flex; gap: 14px; }
-  .avatar {
+  .post-avatar {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: var(--surface-raised);
-    border: 1px solid var(--divider);
+    background: var(--divider);
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
     font-size: 15px;
-    color: var(--teal);
+    color: var(--text);
     flex-shrink: 0;
   }
-  .post-main { flex: 1; min-width: 0; }
-  .post-top-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
-  }
-  .handle { font-size: 15px; font-weight: 700; color: var(--text); }
-  .meta { font-size: 12px; color: var(--text-faint); font-family: 'JetBrains Mono', monospace;}
-  .post-text { font-size: 15px; line-height: 1.5; color: var(--text); margin-bottom: 14px; word-break: break-word; text-wrap: pretty;}
-
-  /* Category Badges */
-  .cat-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 11px;
-    font-weight: 700;
-    padding: 4px 12px;
-    border-radius: 100px;
-    margin-right: 8px;
-  }
-  .cat-security { background: color-mix(in srgb, var(--security) 15%, transparent); color: var(--security); border: 1px solid color-mix(in srgb, var(--security) 30%, transparent); }
-  .cat-power { background: color-mix(in srgb, var(--power) 15%, transparent); color: var(--power); border: 1px solid color-mix(in srgb, var(--power) 30%, transparent); }
-  .cat-water { background: color-mix(in srgb, var(--water) 15%, transparent); color: var(--water); border: 1px solid color-mix(in srgb, var(--water) 30%, transparent); }
-  .cat-transport { background: color-mix(in srgb, var(--transport) 15%, transparent); color: var(--transport); border: 1px solid color-mix(in srgb, var(--transport) 30%, transparent); }
-  .cat-sanitation { background: color-mix(in srgb, var(--sanitation) 15%, transparent); color: var(--sanitation); border: 1px solid color-mix(in srgb, var(--sanitation) 30%, transparent); }
-  .cat-road_conditions { background: color-mix(in srgb, var(--road_conditions) 15%, transparent); color: var(--road_conditions); border: 1px solid color-mix(in srgb, var(--road_conditions) 30%, transparent); }
-  .cat-community_patrol { background: color-mix(in srgb, var(--community_patrol) 15%, transparent); color: var(--community_patrol); border: 1px solid color-mix(in srgb, var(--community_patrol) 30%, transparent); }
-
-  /* Sentry AI Reply */
-  .ai-reply {
-    background: var(--surface-raised);
-    border: 1px solid color-mix(in srgb, var(--teal) 20%, var(--divider));
-    border-radius: 16px;
-    padding: 16px;
-    margin-top: 10px;
-    position: relative;
-    overflow: hidden;
-  }
-  .ai-reply::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; width: 4px; height: 100%;
-    background: var(--teal);
-  }
   
-  .ai-reply-head {
+  .post-content { flex: 1; min-width: 0; }
+  
+  .post-header {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
+    gap: 4px;
+    margin-bottom: 2px;
   }
-  .verified-badge {
-    width: 16px;
-    height: 16px;
-    background: var(--teal);
+  .post-name { font-size: 15px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .post-handle, .post-time { font-size: 15px; color: var(--text-muted); }
+  .verified-badge { width: 16px; height: 16px; color: var(--brand); }
+  
+  .post-text { font-size: 15px; line-height: 20px; color: var(--text); margin-bottom: 12px; word-break: break-word; white-space: pre-wrap; }
+  
+  /* Sentry AI Embedded Box */
+  .ai-quote {
+    border: 1px solid var(--divider);
+    border-radius: 16px;
+    padding: 12px;
+    margin-bottom: 12px;
+    display: flex;
+    gap: 10px;
+  }
+  .ai-quote-avatar {
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    background: var(--brand);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
   }
-  .verified-badge svg { width: 10px; height: 10px; fill: var(--bg-base); }
-  .ai-name { font-size: 13px; font-weight: 700; color: var(--text); }
-  .ai-reply-time { font-size: 11px; color: var(--text-faint); margin-left: auto; font-family:'JetBrains Mono',monospace;}
-  .ai-reply-body { font-size: 14px; line-height: 1.5; color: var(--text-muted); margin-bottom: 12px; text-wrap: pretty;}
-  .ai-reply-tags { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-
-  .stars { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--teal); font-weight: 700; }
+  .ai-quote-avatar svg { width: 14px; height: 14px; fill: #fff; }
+  .ai-quote-body { flex: 1; }
+  .ai-quote-title { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 4px; margin-bottom: 4px; }
+  .ai-quote-text { font-size: 14px; color: var(--text-muted); line-height: 1.4; }
 
   .post-actions {
     display: flex;
-    gap: 24px;
-    margin-top: 16px;
+    justify-content: space-between;
+    max-width: 425px;
+    margin-top: 4px;
   }
   .action-btn {
     display: flex;
     align-items: center;
-    gap: 6px;
-    color: var(--text-faint);
+    gap: 4px;
+    color: var(--text-muted);
     font-size: 13px;
-    font-weight: 600;
     cursor: pointer;
     background: none;
     border: none;
     transition: color 0.2s;
+    padding: 4px;
   }
-  .action-btn:hover { color: var(--text); }
-  .action-btn svg { width: 18px; height: 18px; }
+  .action-btn:hover { color: var(--brand); }
+  .action-btn svg { width: 18.75px; height: 18.75px; fill: currentColor; }
+  .action-btn.green:hover { color: var(--teal); }
+  .action-btn.red:hover { color: var(--security); }
 
-  /* MAP UI */
-  .map-canvas {
-    width: calc(100% - 32px);
-    margin: 0 16px 20px;
-    height: 380px;
-    background: var(--surface-raised);
-    border-radius: 24px;
-    border: 1px solid var(--divider);
+  /* Floating Action Button (Compose) */
+  .fab {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: var(--brand);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(29, 155, 240, 0.4);
+    cursor: pointer;
+    transition: background 0.2s;
+    z-index: 100;
+    border: none;
+  }
+  .fab:hover { background-color: var(--brand-hover); }
+  .fab svg { width: 24px; height: 24px; fill: currentColor; }
+
+  @media (min-width: 600px) {
+    .fab {
+      right: calc(50% - 280px); /* Align with the container */
+    }
+  }
+
+  /* Bottom Nav */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    max-width: 600px;
+    background: var(--bg-base);
+    border-top: 1px solid var(--divider);
+    display: flex;
+    justify-content: space-around;
+    height: 53px;
+    z-index: 50;
+  }
+  @media (max-width: 600px) {
+    .bottom-nav { border-left: none; border-right: none; }
+  }
+
+  .nav-item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text);
+    transition: background 0.2s;
+  }
+  .nav-item:hover { background: var(--surface-hover); }
+  .nav-item svg { width: 26.25px; height: 26.25px; fill: currentColor; stroke: none; }
+  .nav-item.active svg { stroke: currentColor; stroke-width: 0.5; } /* Bold active state */
+
+  /* Map View Canvas */
+  .map-wrapper {
+    width: 100%;
+    height: 400px;
+    background: #111;
     position: relative;
+    border-bottom: 1px solid var(--divider);
     overflow: hidden;
   }
   .map-grid-bg {
     position: absolute;
     inset: 0;
-    background-image: radial-gradient(color-mix(in srgb, var(--teal) 15%, transparent) 1px, transparent 1px);
-    background-size: 24px 24px;
+    background-image: radial-gradient(var(--divider) 1px, transparent 1px);
+    background-size: 30px 30px;
     opacity: 0.5;
   }
-  .radar-sweep {
-    position: absolute;
-    inset: 0;
-    background: conic-gradient(from 0deg at 50% 50%, transparent 270deg, rgba(20,241,217,0.1) 360deg);
-    border-radius: 50%;
-    width: 200%;
-    height: 200%;
-    top: -50%;
-    left: -50%;
-    animation: spin 8s linear infinite;
-    pointer-events: none;
-  }
-  @keyframes spin { 100% { transform: rotate(360deg); } }
-
   .map-pin {
     position: absolute;
-    width: 32px;
-    height: 32px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
+    background: var(--brand);
+    border: 2px solid #000;
+    box-shadow: 0 0 0 4px rgba(29, 155, 240, 0.2);
+    cursor: pointer;
+    transform: translate(-50%, -50%);
+  }
+  
+  /* Compose Modal */
+  .compose-modal {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-base);
+    z-index: 200;
+    display: none;
+    flex-direction: column;
+  }
+  .compose-modal.active { display: flex; }
+  .compose-header {
     display: flex;
     align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    cursor: pointer;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
-    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-    z-index: 5;
-    border: 2px solid var(--bg-base);
+    justify-content: space-between;
+    padding: 0 16px;
+    height: 53px;
   }
-  .map-pin:hover { transform: scale(1.3); z-index: 10; }
-  .pin-pulse {
-    position: absolute;
-    inset: -8px;
-    border-radius: 50%;
-    animation: pinGlow 2s infinite cubic-bezier(0.4, 0, 0.2, 1);
-    pointer-events: none;
+  .btn-close {
+    background: none; border: none; color: var(--text); cursor: pointer; font-size: 15px; padding: 8px; margin-left: -8px;
   }
-  @keyframes pinGlow {
-    0% { opacity: 0.8; transform: scale(0.8); }
-    100% { opacity: 0; transform: scale(2.5); }
+  .btn-post {
+    background: var(--brand); color: #fff; font-weight: 700; font-size: 15px; padding: 6px 16px; border-radius: 9999px; border: none; cursor: pointer;
   }
-
-  .map-overlay-card {
-    margin: 0 16px 12px;
-    background: var(--surface);
-    border: 1px solid var(--divider);
-    border-radius: 20px;
-    padding: 16px;
-    transition: all 0.2s;
-  }
-  .map-overlay-card:hover {
-    background: var(--surface-raised);
-    border-color: color-mix(in srgb, #ffffff 20%, transparent);
-    transform: translateY(-2px);
-  }
-
-  /* FORMS & INPUTS */
-  .composer-body {
-    padding: 0 16px 16px;
+  .btn-post:disabled { opacity: 0.5; cursor: default; }
+  
+  .compose-body {
     display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  .form-label {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 8px;
-  }
-  .composer-textarea, .select-input, .search-input, .wa-input {
-    width: 100%;
-    background: var(--surface);
-    border: 1px solid var(--divider);
-    border-radius: 16px;
     padding: 16px;
+    gap: 12px;
+  }
+  .compose-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-size: 20px;
+    font-family: inherit;
+    resize: none;
+    outline: none;
+    min-height: 120px;
+  }
+  .compose-input::placeholder { color: var(--text-muted); }
+  
+  .select-native {
+    background: transparent;
+    color: var(--brand);
+    border: none;
+    font-size: 14px;
+    font-weight: 700;
+    outline: none;
+    cursor: pointer;
+  }
+
+  /* RAG Search Bar */
+  .search-wrapper {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--divider);
+  }
+  .search-input {
+    width: 100%;
+    background: #202327;
+    border: 1px solid transparent;
+    border-radius: 9999px;
+    padding: 12px 20px 12px 48px;
     color: var(--text);
     font-size: 15px;
     font-family: inherit;
-    transition: border-color 0.2s;
     outline: none;
   }
-  .composer-textarea { resize: none; min-height: 140px; line-height: 1.5; }
-  .composer-textarea:focus, .select-input:focus, .search-input:focus { border-color: var(--teal); box-shadow: 0 0 0 4px var(--teal-dim); }
-  .composer-textarea::placeholder, .search-input::placeholder, .wa-input::placeholder { color: var(--text-faint); }
-
-  .attachments-row { display: flex; gap: 12px; }
-  .attach-chip {
-    flex: 1;
-    background: var(--surface);
-    border: 1px dashed var(--divider);
-    border-radius: 14px;
-    padding: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: all 0.2s;
+  .search-input:focus {
+    background: #000;
+    border-color: var(--brand);
   }
-  .attach-chip:hover { border-color: var(--teal); color: var(--text); background: var(--teal-dim); }
-
-  .anon-toggle {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 14px;
-    color: var(--text-muted);
-    cursor: pointer;
-  }
-
-  /* Buttons */
-  .btn-primary {
-    background: var(--text);
-    color: var(--bg-base);
-    font-weight: 800;
-    font-size: 16px;
-    font-family: 'Outfit', sans-serif;
-    padding: 16px;
-    border-radius: 100px;
-    border: none;
-    cursor: pointer;
-    width: 100%;
-    transition: transform 0.2s, box-shadow 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
-  .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px color-mix(in srgb, #ffffff 20%, transparent);
-  }
-
-  /* RAG Ask Screen */
-  .quick-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
-  .quick-chip {
-    background: var(--surface);
-    border: 1px solid var(--divider);
-    border-radius: 100px;
-    padding: 8px 16px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .quick-chip:hover { background: var(--teal-dim); color: var(--teal); border-color: var(--teal); }
-
-  .rag-result-card {
-    background: var(--surface-raised);
-    border: 1px solid color-mix(in srgb, var(--teal) 30%, transparent);
-    border-radius: 20px;
-    padding: 20px;
-    display: none;
-    animation: slide-fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  /* WhatsApp Simulator */
-  .wa-container {
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    background: color-mix(in srgb, #000 40%, var(--surface));
-    border-radius: 24px;
-    margin: 0 16px;
-    border: 1px solid var(--divider);
-  }
-  .wa-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--divider);
-  }
-  .wa-avatar {
-    width: 44px; height: 44px; border-radius: 50%;
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 800; color: #fff; font-size: 18px;
-  }
-  .wa-chat-area {
-    flex: 1;
-    min-height: 380px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    padding-right: 4px;
-  }
-  .wa-bubble {
-    max-width: 85%;
-    padding: 12px 16px;
-    border-radius: 16px;
-    font-size: 15px;
-    line-height: 1.5;
-    word-break: break-word;
-    animation: slide-fade-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-  .wa-user {
-    align-self: flex-end;
-    background: var(--teal);
-    color: var(--bg-base);
-    border-bottom-right-radius: 4px;
-    font-weight: 500;
-  }
-  .wa-bot {
-    align-self: flex-start;
-    background: var(--surface-raised);
-    color: var(--text);
-    border-bottom-left-radius: 4px;
-    border: 1px solid var(--divider);
-  }
-  .wa-input-row { display: flex; gap: 10px; margin-top: 16px; }
-  .wa-send-btn {
-    width: 54px; height: 54px; flex-shrink: 0;
-    border-radius: 50%; background: var(--teal); border: none;
-    display: flex; align-items: center; justify-content: center; cursor: pointer;
-    transition: transform 0.2s;
-  }
-  .wa-send-btn:hover { transform: scale(1.05); }
-
-  /* Floating Bottom Nav */
-  .bottomnav-wrapper {
+  .search-icon-abs {
     position: absolute;
-    bottom: 24px;
-    left: 0;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    pointer-events: none;
-    z-index: 20;
+    left: 32px;
+    top: 24px;
+    width: 18.75px;
+    height: 18.75px;
+    fill: var(--text-muted);
   }
-  .bottomnav {
-    pointer-events: auto;
-    background: color-mix(in srgb, #ffffff 8%, transparent);
-    backdrop-filter: blur(32px) saturate(180%);
-    border: 1px solid color-mix(in srgb, #ffffff 15%, transparent);
-    border-radius: 100px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
-  }
-  .nav-tab {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    color: var(--text-muted);
-    cursor: pointer;
-    background: none;
-    border: none;
-    font-size: 11px;
-    font-weight: 700;
-    width: 64px;
-    height: 56px;
-    border-radius: 20px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  .nav-tab:hover { color: var(--text); background: var(--surface); }
-  .nav-tab.active { color: var(--teal); background: var(--teal-dim); }
-  .nav-icon { width: 22px; height: 22px; stroke-width: 2.5; }
-
-  /* Dialog / Popover Modern Native Setup (Starting Style) */
-  .modal-overlay {
-    position: absolute;
-    inset: 0;
-    background: color-mix(in srgb, #000000 60%, transparent);
-    backdrop-filter: blur(12px);
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    opacity: 0;
-    pointer-events: none;
-    transition: display 0.4s allow-discrete, opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .modal-overlay.active {
-    opacity: 1;
-    pointer-events: auto;
-  }
-  @starting-style {
-    .modal-overlay.active { opacity: 0; }
-  }
-
-  .modal-card {
-    background: var(--bg-base);
-    border: 1px solid var(--divider);
-    border-radius: 28px;
-    padding: 24px;
-    width: 100%;
-    max-width: 400px;
-    box-shadow: 0 24px 60px rgba(0,0,0,0.6);
-    transform: scale(0.95) translateY(10px);
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  .modal-overlay.active .modal-card { transform: scale(1) translateY(0); }
-  @starting-style {
-    .modal-overlay.active .modal-card { transform: scale(0.95) translateY(10px); }
-  }
-
-  /* Utility Admin Dashboard Overrides */
-  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--divider);
-    border-radius: 20px;
-    padding: 16px;
-  }
-  .stat-value { font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 700; color: var(--text); }
-  .stat-value.crit { color: var(--security); }
-  .stat-value.warn { color: var(--power); }
-  .stat-value.ok { color: var(--teal); }
 
 </style>
 </head>
 <body>
 
-  <!-- App Mode Header -->
-  <div class="app-mode-bar">
-    <div class="app-mode-title">
-      <span class="pulse-dot"></span> SENTRY AI
-    </div>
-    <div style="display:flex; gap:10px; align-items:center;">
-      <select class="community-select-top" id="communitySelector" onchange="changeCommunitySector(this.value)">
-        <option value="kwasu_main">KWASU MAIN</option>
-        <option value="malete_town">MALETE TOWN</option>
-        <option value="ilorin_central">ILORIN CTRL</option>
-      </select>
-      <button class="mode-switch-btn" onclick="toggleViewMode()" id="viewModeBtn">Expand</button>
-    </div>
-  </div>
-
-  <!-- Device Frame Wrapper -->
-  <div class="frame-wrapper" id="frameWrapper">
-    <div class="frame">
+  <div class="app-container">
+    
+    <!-- Top Header -->
+    <header class="top-header">
+      <div class="header-top-row">
+        <div class="header-avatar" onclick="switchCommunity()">M</div>
+        <div class="header-logo">
+          <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </div>
+        <div class="header-settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M10.54 1.75h2.92l1.57 2.36c.11.17.32.25.53.21l2.53-.59 1.46 2.52-1.7 1.95c-.15.17-.15.42 0 .59l1.7 1.95-1.46 2.52-2.53-.59c-.21-.04-.42.04-.53.21l-1.57 2.36h-2.92l-1.57-2.36c-.11-.17-.32-.25-.53-.21l-2.53.59-1.46-2.52 1.7-1.95c.15-.17.15-.42 0-.59l-1.7-1.95 1.46-2.52 2.53.59c.21.04.42-.04.53-.21l1.57-2.36zM12 15.5c1.93 0 3.5-1.57 3.5-3.5S13.93 8.5 12 8.5 8.5 10.07 8.5 12s1.57 3.5 3.5 3.5z"/></svg>
+        </div>
+      </div>
       
-      <!-- Statusbar -->
-      <div class="statusbar">
-        <span id="liveClock" style="font-family:'JetBrains Mono',monospace;">12:00</span>
-        <div style="display:flex; gap:6px; align-items:center;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
-          <svg width="20" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="16" height="10" rx="2" ry="2"/><line x1="22" y1="11" x2="22" y2="13"/></svg>
+      <div class="tabs-bar" id="mainTabs">
+        <div class="tab-item active" onclick="setFeedCategory('all', this)">For you</div>
+        <div class="tab-item" onclick="setFeedCategory('security', this)">Security</div>
+        <div class="tab-item" onclick="setFeedCategory('power', this)">Power</div>
+        <div class="tab-item" onclick="setFeedCategory('water', this)">Water</div>
+      </div>
+    </header>
+
+    <!-- Emergency Banner -->
+    <div class="emergency-banner" id="emergencyBanner">
+      <span id="emergencyText">🚨 URGENT INCIDENT DETECTED</span>
+      <button style="background:none; border:none; color:inherit; cursor:pointer;" onclick="this.parentElement.style.display='none'">✕</button>
+    </div>
+
+    <div class="screen-container">
+      
+      <!-- 1. FEED SCREEN -->
+      <div class="view-screen active" id="screen-home">
+        
+        <!-- Live Status Block (Pinned) -->
+        <div class="post" style="border-bottom-width: 1px;">
+          <div class="post-avatar" style="background:var(--brand); color:#fff;"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></div>
+          <div class="post-content">
+            <div class="post-header">
+              <span class="post-name">System Update</span>
+              <svg class="verified-badge" viewBox="0 0 24 24"><path fill="currentColor" d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.918-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.337 2.25c-.416-.165-.866-.25-1.336-.25-2.21 0-3.918 1.79-3.918 4 0 .495.084.965.238 1.4-1.273.65-2.148 2.02-2.148 3.6 0 1.46.758 2.76 1.907 3.46-.057.243-.092.497-.092.76 0 2.21 1.71 4 3.918 4 .47 0 .92-.086 1.336-.25C9.184 22.585 10.49 23.5 12 23.5s2.816-.917 3.337-2.25c.416.164.866.25 1.336.25 2.21 0 3.918-1.79 3.918-4 0-.263-.035-.517-.092-.76 1.15-.7 1.907-2 1.907-3.46zM10.495 17.51l-3.328-3.23 1.414-1.41 1.914 1.86 5.08-4.93 1.41 1.41-6.49 6.3z"/></svg>
+              <span class="post-handle">@sentry_ai</span>
+              <span class="post-time">· Live</span>
+            </div>
+            <div class="post-text">Threat Level: <span style="color:var(--brand); font-weight:700;" id="campusLiveBadge">NOMINAL</span><br><br>Community: <span id="communityNameDisplay">KWASU MAIN</span>. All systems operational.</div>
+          </div>
+        </div>
+
+        <div id="feedPostsList">
+          <!-- Dynamic Posts -->
         </div>
       </div>
 
-      <!-- Emergency Banner -->
-      <div class="emergency-banner" id="emergencyBanner">
-        <span id="emergencyText">🚨 SEVERE INCIDENT REPORTED</span>
-        <button style="background:none; border:none; color:inherit; cursor:pointer;" onclick="this.parentElement.style.display='none'">✕</button>
-      </div>
-
-      <!-- Topbar -->
-      <div class="topbar">
-        <div class="wordmark">sentry</div>
-        <div style="display:flex; gap:8px;">
-          <span class="badge-tag">Gemma 4</span>
-          <span class="badge-tag" style="border-color:var(--teal); color:var(--teal);" id="activeCommunityBadge">KWASU</span>
+      <!-- 2. EXPLORE/SEARCH SCREEN -->
+      <div class="view-screen" id="screen-search">
+        <div style="position:relative;" class="search-wrapper">
+          <svg class="search-icon-abs" viewBox="0 0 24 24"><path d="M10.25 3.75c-3.59 0-6.5 2.91-6.5 6.5s2.91 6.5 6.5 6.5c1.795 0 3.419-.726 4.596-1.904 1.178-1.177 1.904-2.801 1.904-4.596 0-3.59-2.91-6.5-6.5-6.5zm-8.5 6.5c0-4.694 3.806-8.5 8.5-8.5s8.5 3.806 8.5 8.5c0 1.986-.682 3.815-1.824 5.262l4.781 4.781-1.414 1.414-4.781-4.781c-1.447 1.142-3.276 1.824-5.262 1.824-4.694 0-8.5-3.806-8.5-8.5z"/></svg>
+          <input type="text" class="search-input" id="askQueryInput" placeholder="Search the Hive Mind...">
         </div>
-      </div>
-
-      <!-- Screen Container -->
-      <div class="screen-container">
-
-        <!-- 1. FEED SCREEN -->
-        <div class="view-screen active" id="screen-feed">
-          <div class="situation-card">
-            <div class="situation-head">
-              <span class="situation-badge">Live Triage</span>
-              <span class="situation-title" style="text-wrap: balance;">Intelligence Brief</span>
-              <span class="situation-time" id="briefTime">Real-time</span>
-            </div>
-            <div class="situation-body" id="briefBullets">
-              <div class="item"><span class="dot">●</span><span>Syncing with Gemma 4...</span></div>
-            </div>
-            <div class="situation-status">
-              <span>Threat Level</span>
-              <span style="color:var(--teal); font-weight:800;" id="campusLiveBadge">NOMINAL</span>
-            </div>
+        
+        <div style="padding:16px;">
+          <h2 style="font-size:20px; font-weight:800; margin-bottom:16px;">Trends for you</h2>
+          
+          <div style="margin-bottom:16px; cursor:pointer;" onclick="runQuickAsk('Is there power in Hostel Block C?')">
+            <div style="font-size:13px; color:var(--text-muted); display:flex; justify-content:space-between;">1 · Infrastructure · Trending</div>
+            <div style="font-size:15px; font-weight:700;">Power Outage in Block C</div>
+            <div style="font-size:13px; color:var(--text-muted);">24 reports</div>
           </div>
 
-          <div class="filter-bar">
-            <button class="filter-pill active" onclick="filterFeed('all', this)">All Feeds</button>
-            <button class="filter-pill" onclick="filterFeed('security', this)">🛡️ Security</button>
-            <button class="filter-pill" onclick="filterFeed('power', this)">⚡ Power</button>
-            <button class="filter-pill" onclick="filterFeed('water', this)">💧 Water</button>
-            <button class="filter-pill" onclick="filterFeed('road_conditions', this)">🛣️ Roads</button>
+          <div style="margin-bottom:16px; cursor:pointer;" onclick="runQuickAsk('Road conditions at Malete Market?')">
+            <div style="font-size:13px; color:var(--text-muted); display:flex; justify-content:space-between;">2 · Transport · Trending</div>
+            <div style="font-size:15px; font-weight:700;">Traffic at Malete Market</div>
+            <div style="font-size:13px; color:var(--text-muted);">12 reports</div>
           </div>
+          
+          <button class="btn-post" onclick="submitAskQuery()" style="width:100%; text-align:center; padding:12px;">Synthesize Answer</button>
 
-          <div id="feedPostsList">
-            <!-- Dynamic Posts -->
-          </div>
-        </div>
-
-        <!-- 2. MAP SCREEN -->
-        <div class="view-screen" id="screen-map">
-          <div class="filter-bar" style="padding-top:16px;">
-            <button class="filter-pill active" onclick="filterMap('all', this)">All Clusters</button>
-            <button class="filter-pill" onclick="filterMap('security', this)">Security</button>
-            <button class="filter-pill" onclick="filterMap('power', this)">Power</button>
-          </div>
-
-          <div class="map-canvas">
-            <div class="map-grid-bg"></div>
-            <div class="radar-sweep"></div>
-            <!-- Minimal Map SVG -->
-            <svg style="position:absolute; inset:0; width:100%; height:100%; opacity:0.6;" viewBox="0 0 400 380" fill="none">
-              <rect x="30" y="40" width="80" height="60" rx="12" fill="var(--surface-raised)" stroke="var(--divider)" stroke-width="2"/>
-              <rect x="150" y="60" width="100" height="90" rx="12" fill="var(--surface-raised)" stroke="var(--divider)" stroke-width="2"/>
-              <rect x="280" y="30" width="90" height="140" rx="12" fill="var(--surface-raised)" stroke="var(--divider)" stroke-width="2"/>
-              <rect x="50" y="160" width="80" height="80" rx="12" fill="var(--surface-raised)" stroke="var(--divider)" stroke-width="2"/>
-              <rect x="100" y="280" width="200" height="70" rx="12" fill="var(--surface-raised)" stroke="var(--divider)" stroke-width="2"/>
-            </svg>
-
-            <!-- Pins -->
-            <div class="map-pin" style="top:85px; left:315px; background:var(--power); color:var(--bg-base); border-color:var(--power);" onclick="showClusterDetail('CLUST-101')">
-              <div class="pin-pulse" style="background:var(--power);"></div>⚡
-            </div>
-            <div class="map-pin" style="top:195px; left:75px; background:var(--security); color:#fff; border-color:var(--security);" onclick="showClusterDetail('CLUST-102')">
-              <div class="pin-pulse" style="background:var(--security);"></div>🛡️
-            </div>
-            <div class="map-pin" style="top:305px; left:190px; background:var(--transport); color:#fff; border-color:var(--transport);" onclick="showClusterDetail('CLUST-103')">
-              <div class="pin-pulse" style="background:var(--transport);"></div>🚌
-            </div>
-          </div>
-
-          <div style="padding:0 16px;">
-            <div class="form-label">Active Threat Clusters</div>
-          </div>
-          <div id="mapClustersList">
-            <!-- Dynamic Clusters -->
-          </div>
-        </div>
-
-        <!-- 3. REPORT COMPOSER -->
-        <div class="view-screen" id="screen-report">
-          <div class="composer-body" style="padding-top:16px;">
-            <div>
-              <div class="form-label">Classification</div>
-              <div class="filter-bar" style="padding:0 0 10px;" id="composerCategoryList">
-                <button class="filter-pill active" onclick="selectComposerCat('power', this)">⚡ Power</button>
-                <button class="filter-pill" onclick="selectComposerCat('security', this)">🛡️ Security</button>
-                <button class="filter-pill" onclick="selectComposerCat('water', this)">💧 Water</button>
-                <button class="filter-pill" onclick="selectComposerCat('transport', this)">🚌 Transport</button>
+          <div id="ragResultBox" style="display:none; margin-top:24px;">
+            <div class="ai-quote">
+              <div class="ai-quote-avatar"><svg viewBox="0 0 24 24"><path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.918-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.337 2.25c-.416-.165-.866-.25-1.336-.25-2.21 0-3.918 1.79-3.918 4 0 .495.084.965.238 1.4-1.273.65-2.148 2.02-2.148 3.6 0 1.46.758 2.76 1.907 3.46-.057.243-.092.497-.092.76 0 2.21 1.71 4 3.918 4 .47 0 .92-.086 1.336-.25C9.184 22.585 10.49 23.5 12 23.5s2.816-.917 3.337-2.25c.416.164.866.25 1.336.25 2.21 0 3.918-1.79 3.918-4 0-.263-.035-.517-.092-.76 1.15-.7 1.907-2 1.907-3.46zM10.495 17.51l-3.328-3.23 1.414-1.41 1.914 1.86 5.08-4.93 1.41 1.41-6.49 6.3z"/></svg></div>
+              <div class="ai-quote-body">
+                <div class="ai-quote-title">Gemma Analysis <span style="font-weight:400; color:var(--text-muted); font-size:13px;" id="ragScore"></span></div>
+                <div class="ai-quote-text" id="ragAnswerText"></div>
+                <div style="font-size:12px; margin-top:8px; color:var(--brand);" id="ragCitationsText"></div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
 
-            <div>
-              <div class="form-label">Precise Location</div>
-              <select class="select-input" id="reportLocationSelect">
-                <option value="Hostel Block C">Hostel Block C</option>
-                <option value="Engineering Gate">Engineering Gate</option>
-                <option value="Main Gate Stop">Main Gate Stop</option>
-                <option value="Library Annex">Library Annex</option>
-              </select>
+      <!-- 3. MAP SCREEN (NOTIFICATIONS EQUIVALENT) -->
+      <div class="view-screen" id="screen-map">
+        <div class="search-wrapper" style="border:none; padding-bottom:0;">
+          <h2 style="font-size:20px; font-weight:800; padding:12px 0;">Intelligence Map</h2>
+        </div>
+        <div class="map-wrapper">
+          <div class="map-grid-bg"></div>
+          
+          <div class="map-pin" style="top: 30%; left: 40%; background: var(--power);" onclick="alert('Power Cluster')"></div>
+          <div class="map-pin" style="top: 60%; left: 70%; background: var(--security);" onclick="alert('Security Cluster')"></div>
+          <div class="map-pin" style="top: 80%; left: 20%; background: var(--water);" onclick="alert('Water Cluster')"></div>
+        </div>
+        
+        <div id="mapClustersList">
+          <!-- Clusters as list items -->
+        </div>
+      </div>
+
+      <!-- 4. MESSAGES / WHATSAPP SCREEN -->
+      <div class="view-screen" id="screen-messages">
+        <div class="search-wrapper">
+          <h2 style="font-size:20px; font-weight:800; padding:4px 0;">Messages</h2>
+        </div>
+        
+        <div style="display:flex; flex-direction:column; height: calc(100vh - 180px);">
+          <div style="flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:16px;" id="waChatArea">
+            <div style="align-self:flex-start; background:var(--divider); padding:12px 16px; border-radius:16px; border-bottom-left-radius:4px; max-width:80%;">
+              👋 I am Sentry AI. Send unstructured incident reports here, and I will parse and route them.
             </div>
+          </div>
+          <div style="padding:12px 16px; border-top:1px solid var(--divider); display:flex; gap:12px; align-items:center;">
+            <input type="text" class="search-input" id="waInput" placeholder="Start a new message" style="padding-left:16px;">
+            <button onclick="sendWaMessage()" style="background:none; border:none; color:var(--brand); cursor:pointer;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M2.504 21.866l.526-2.108C1.584 17.37 1 14.815 1 12.053 1 6.002 5.927 1.07 11.979 1.07c5.966 0 10.958 4.908 10.958 10.978 0 6.058-4.94 10.985-10.958 10.985-2.616 0-5.07-.954-7.009-2.58l-2.466.813a1.5 1.5 0 0 1-1.92-1.802l.42-1.6zm4.908-4.143l-.403-.242a8.91 8.91 0 0 1-4.93-7.928C2.08 4.417 6.438.07 11.979.07c5.448 0 9.958 4.444 9.958 9.978 0 5.428-4.437 9.985-9.958 9.985-2.617 0-5.048-.99-6.939-2.736l-.337-.29-3.3.93 1.01-3.214zm11.75-5.32c-.084-.14-.306-.226-.64-.393-.335-.168-1.983-.98-2.29-.1093-.306-.112-.529-.112-.75.226-.224.337-.866 1.093-1.06 1.317-.195.225-.39.253-.725.084-.334-.168-1.415-.52-2.695-1.664-1.002-.897-1.677-2.006-1.872-2.343-.195-.337-.02-.52.148-.687.15-.15.335-.392.502-.59.167-.196.223-.336.335-.56.111-.225.055-.422-.028-.59-.084-.168-.75-1.812-1.028-2.486-.27-.655-.544-.566-.75-.576-.195-.01-.418-.01-.64-.01-.224 0-.585.084-.892.422-.307.337-1.17 1.144-1.17 2.793s1.198 3.242 1.365 3.466c.167.225 2.364 3.608 5.723 5.056 2.686 1.156 3.626 1.05 4.3.955.77-.112 1.982-.81 2.26-1.593.28-.782.28-1.453.196-1.593z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+    </div>
 
-            <div>
-              <div class="form-label">Intelligence Report</div>
-              <textarea class="composer-textarea" id="reportTextInput" placeholder="Describe the incident in detail..."></textarea>
-            </div>
+    <!-- Floating Action Button -->
+    <button class="fab" onclick="openComposeModal()">
+      <svg viewBox="0 0 24 24"><path d="M23 3c-6.62-.1-10.38 2.421-13.05 6.03C7.29 12.61 6 17.331 6 22h2c0-1.007.22-2.012.64-2.908.14 2.808 2.82 5.092 5.64 5.092 3.14 0 5.92-2.285 6.08-5.966 2.65-.48 5.56-2.996 5.56-6.953 0-1.444-.33-2.812-.97-4.005C20.84 8.01 23 3 23 3zm-8.92 20c-1.84 0-3.32-1.282-3.32-3.39 0-.2.03-.393.07-.582-1.54.346-3.05 1.543-3.6 2.774C9.52 17.387 11.23 12.44 14.54 8.78c1.37-1.517 3.09-2.735 5.25-3.39-1.28.948-2.6 2.822-2.6 5.56 0 3.21 2.23 4.966 4.3 5.362-.64 2.128-2.82 3.69-5.41 3.69z"/></svg>
+    </button>
 
-            <div class="attachments-row">
-              <div class="attach-chip" onclick="simulateVoiceNote()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg> Voice</div>
-              <div class="attach-chip" onclick="simulatePhotoAttach()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg> Media</div>
-            </div>
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+      <div class="nav-item active" onclick="switchTab('home', this)">
+        <svg viewBox="0 0 24 24"><path d="M12 1.696L.622 8.807l1.06 1.696L3 9.679V19.5C3 20.881 4.119 22 5.5 22h13c1.381 0 2.5-1.119 2.5-2.5V9.679l1.318.824 1.06-1.696L12 1.696zM12 16.5c-1.933 0-3.5-1.567-3.5-3.5s1.567-3.5 3.5-3.5 3.5 1.567 3.5 3.5-1.567 3.5-3.5 3.5z"/></svg>
+      </div>
+      <div class="nav-item" onclick="switchTab('search', this)">
+        <svg viewBox="0 0 24 24"><path d="M10.25 3.75c-3.59 0-6.5 2.91-6.5 6.5s2.91 6.5 6.5 6.5c1.795 0 3.419-.726 4.596-1.904 1.178-1.177 1.904-2.801 1.904-4.596 0-3.59-2.91-6.5-6.5-6.5zm-8.5 6.5c0-4.694 3.806-8.5 8.5-8.5s8.5 3.806 8.5 8.5c0 1.986-.682 3.815-1.824 5.262l4.781 4.781-1.414 1.414-4.781-4.781c-1.447 1.142-3.276 1.824-5.262 1.824-4.694 0-8.5-3.806-8.5-8.5z"/></svg>
+      </div>
+      <div class="nav-item" onclick="switchTab('map', this)">
+        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+      </div>
+      <div class="nav-item" onclick="switchTab('messages', this)">
+        <svg viewBox="0 0 24 24"><path d="M1.998 5.5c0-1.381 1.119-2.5 2.5-2.5h15c1.381 0 2.5 1.119 2.5 2.5V18.5c0 1.381-1.119 2.5-2.5 2.5h-15c-1.381 0-2.5-1.119-2.5-2.5V5.5zm17.5 1.5H4.5v10h15V7zM4.5 5.5v.172l7.5 5.625 7.5-5.625V5.5h-15z"/></svg>
+      </div>
+    </nav>
+    
+  </div>
 
-            <label class="anon-toggle">
-              <input type="checkbox" id="anonCheckbox" checked style="accent-color:var(--teal); width:20px; height:20px;">
-              <span>Anonymize via Gemma 4 Redaction</span>
+  <!-- Compose Report Modal -->
+  <div class="compose-modal" id="composeModal">
+    <div class="compose-header">
+      <button class="btn-close" onclick="closeComposeModal()">✕</button>
+      <button class="btn-post" id="postBtn" onclick="submitReportFromWeb()">Post</button>
+    </div>
+    <div class="compose-body">
+      <div class="post-avatar">A</div>
+      <div style="flex:1; display:flex; flex-direction:column;">
+        <select class="select-native" id="reportLocationSelect" style="margin-bottom:8px;">
+          <option value="Hostel Block C">Hostel Block C</option>
+          <option value="Engineering Gate">Engineering Gate</option>
+          <option value="Main Gate Stop">Main Gate Stop</option>
+        </select>
+        
+        <textarea class="compose-input" id="reportTextInput" placeholder="What is happening?"></textarea>
+        
+        <div style="border-top:1px solid var(--divider); margin-top:16px; padding-top:12px; display:flex; align-items:center; justify-content:space-between;">
+          <div style="display:flex; gap:16px; color:var(--brand);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.5C3 4.119 4.119 3 5.5 3h13C19.881 3 21 4.119 21 5.5v13c0 1.381-1.119 2.5-2.5 2.5h-13C4.119 21 3 19.881 3 18.5v-13zM5.5 5c-.276 0-.5.224-.5.5v9.086l3-3 3 3 5-5 3 3V5.5c0-.276-.224-.5-.5-.5h-13zM19 15.414l-3-3-5 5-3-3-3 3V18.5c0 .276.224.5.5.5h13c.276 0 .5-.224.5-.5v-3.086zM9.75 7C8.784 7 8 7.784 8 8.75s.784 1.75 1.75 1.75 1.75-.784 1.75-1.75S10.716 7 9.75 7z"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+          </div>
+          <div style="font-size:13px; color:var(--text-muted);">
+            <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+              <input type="checkbox" id="anonCheckbox" checked style="accent-color:var(--brand);">
+              <span>Anonymous</span>
             </label>
-
-            <button class="btn-primary" onclick="submitReportFromWeb()">
-              Broadcast to Sentry Network
-            </button>
           </div>
         </div>
-
-        <!-- 4. RAG ASK SCREEN -->
-        <div class="view-screen" id="screen-ask">
-          <div class="composer-body" style="padding-top:16px;">
-            <div>
-              <h2 style="font-weight:800; font-size:24px; text-wrap:balance; line-height:1.2; margin-bottom:8px;">Query the Hive Mind</h2>
-              <p style="color:var(--text-muted); font-size:14px;">Ask questions grounded purely in real-time, verified community intelligence.</p>
-            </div>
-
-            <div style="position:relative;">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position:absolute; left:16px; top:18px; color:var(--text-faint);"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" class="search-input" id="askQueryInput" placeholder="e.g. Is it safe near the Main Gate?" style="padding-left:48px;">
-            </div>
-
-            <div class="quick-chips">
-              <span class="quick-chip" onclick="runQuickAsk('Is there power in Hostel Block C?')">⚡ Power in Block C?</span>
-              <span class="quick-chip" onclick="runQuickAsk('Road conditions at Malete Market?')">🛣️ Market Road?</span>
-            </div>
-
-            <button class="btn-primary" onclick="submitAskQuery()" style="background:var(--surface-raised); border:1px solid var(--teal); color:var(--teal);">
-              Synthesize Answer
-            </button>
-
-            <div class="rag-result-card" id="ragResultBox">
-              <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
-                <span class="verified-badge"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="3"/></svg></span>
-                <span style="font-size:14px; font-weight:700;">Gemma Synthesized Report</span>
-                <span class="stars" style="margin-left:auto;" id="ragScore">★ 96%</span>
-              </div>
-              <div style="font-size:15px; line-height:1.6; color:var(--text);" id="ragAnswerText">
-                Answer content here...
-              </div>
-              <div style="margin-top:16px; border-top:1px solid var(--divider); padding-top:12px; font-size:12px; color:var(--text-faint); font-family:'JetBrains Mono', monospace;" id="ragCitationsText">
-                Citations: [CLUST-101]
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 5. WHATSAPP UI -->
-        <div class="view-screen" id="screen-whatsapp">
-          <div class="wa-container">
-            <div class="wa-header">
-              <div class="wa-avatar">S</div>
-              <div>
-                <div style="font-size:16px; font-weight:700;">Sentry WhatsApp</div>
-                <div style="font-size:12px; color:var(--teal); font-family:'JetBrains Mono',monospace;">Live Twilio Webhook</div>
-              </div>
-            </div>
-
-            <div class="wa-chat-area" id="waChatArea">
-              <div class="wa-bubble wa-bot">
-                👋 Sentry AI is active.<br><br>Send unstructured incident reports, and I will parse, triage, and route them instantly.
-              </div>
-            </div>
-
-            <div class="wa-input-row">
-              <input type="text" class="wa-input" id="waInput" placeholder="Type a message...">
-              <button class="wa-send-btn" onclick="sendWaMessage()">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--bg-base)" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 6. ADMIN -->
-        <div class="view-screen" id="screen-admin">
-          <div class="composer-body">
-            <div id="adminLoginView" style="background:var(--surface); border:1px solid var(--divider); border-radius:24px; padding:32px 24px; text-align:center; margin-top:24px;">
-              <div style="width:64px; height:64px; border-radius:50%; background:color-mix(in srgb, var(--security) 20%, transparent); color:var(--security); display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              </div>
-              <h2 style="font-weight:800; font-size:22px; margin-bottom:8px;">Dispatch Portal</h2>
-              <p style="font-size:14px; color:var(--text-muted); margin-bottom:24px;">Restricted access for command center.</p>
-              <input type="password" id="adminPassKey" class="search-input" placeholder="Security Key" style="text-align:center; margin-bottom:16px;">
-              <button class="btn-primary" onclick="unlockAdminDashboard()">Authenticate</button>
-            </div>
-
-            <div id="adminDashboardView" style="display:none; flex-direction:column; gap:20px;">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h2 style="font-weight:800; font-size:20px;">Command Overview</h2>
-                <button class="mode-switch-btn" onclick="triggerAdminBriefGen()">Force Sync</button>
-              </div>
-              <div class="stat-grid">
-                <div class="stat-card">
-                  <div class="form-label">Active Incidents</div>
-                  <div class="stat-value" id="statOpenIncidents">--</div>
-                </div>
-                <div class="stat-card">
-                  <div class="form-label">Critical Queue</div>
-                  <div class="stat-value crit" id="statUrgentUnresolved">--</div>
-                </div>
-              </div>
-              <div class="form-label" style="color:var(--security); margin-top:8px;">Triage Escalations</div>
-              <div id="adminUrgentQueueList"></div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Floating Bottom Nav -->
-      <div class="bottomnav-wrapper">
-        <div class="bottomnav">
-          <button class="nav-tab active" onclick="switchTab('feed', this)">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-            Live
-          </button>
-          <button class="nav-tab" onclick="switchTab('map', this)">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 6v14l6-3 6 3 6-3 4 2V4l-4-2-6 3-6-3-5 2z"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="15" y1="5" x2="15" y2="21"/></svg>
-            Map
-          </button>
-          <button class="nav-tab" onclick="switchTab('report', this)" style="background:var(--text); color:var(--bg-base); border-radius:50%; width:48px; height:48px; margin: 0 4px; box-shadow: 0 8px 20px color-mix(in srgb, #ffffff 20%, transparent);">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </button>
-          <button class="nav-tab" onclick="switchTab('ask', this)">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            Ask
-          </button>
-          <button class="nav-tab" onclick="switchTab('whatsapp', this)">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-            WA
-          </button>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Detail Modal -->
-  <div class="modal-overlay" id="detailModal">
-    <div class="modal-card">
-      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
-        <span class="badge-tag" id="modalClusterId" style="background:var(--teal-dim); color:var(--teal); border-color:var(--teal);">CLUST-101</span>
-        <button style="background:color-mix(in srgb, #ffffff 10%, transparent); border:none; color:var(--text); width:32px; height:32px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s;" onclick="closeDetailModal()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>
-      <h3 style="font-weight:800; font-size:20px; margin-bottom:8px; line-height:1.2; text-wrap:balance;" id="modalClusterTitle">
-        Cluster Title
-      </h3>
-      <p style="font-size:14px; color:var(--text-muted); margin-bottom:20px; line-height:1.6;" id="modalClusterSummary">
-        Summary text...
-      </p>
-      <div style="font-size:12px; font-family:'JetBrains Mono',monospace; color:var(--text-faint); margin-bottom:20px; padding:12px; background:var(--surface); border-radius:12px; border:1px solid var(--divider);" id="modalClusterMeta">
-        Location | Severity
-      </div>
-      
-      <div class="form-label">Aggregated Reports</div>
-      <div id="modalSubReportsList" style="max-height:240px; overflow-y:auto; gap:12px; display:flex; flex-direction:column; padding-right:8px;">
       </div>
     </div>
   </div>
@@ -1097,80 +634,40 @@
   <script>
     let currentCommunityId = 'kwasu_main';
     let activeCategory = 'all';
-    let selectedComposerCategory = 'power';
 
-    function updateClock() {
-      const now = new Date();
-      document.getElementById('liveClock').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    function changeCommunitySector(commId) {
-      currentCommunityId = commId;
-      document.getElementById('activeCommunityBadge').innerText = commId.split('_')[0].toUpperCase();
-      loadSituationBrief();
-      loadFeedPosts();
-      loadMapClusters();
-      if (document.getElementById('adminDashboardView').style.display !== 'none') {
-        loadAdminData();
-      }
-    }
-
-    function toggleViewMode() {
-      const wrapper = document.getElementById('frameWrapper');
-      const btn = document.getElementById('viewModeBtn');
-      if (wrapper.classList.contains('studio-mode')) {
-        wrapper.classList.remove('studio-mode');
-        btn.innerText = 'Expand';
-      } else {
-        wrapper.classList.add('studio-mode');
-        btn.innerText = 'Compact';
-      }
-    }
-
-    // Modern View Transitions API for Tabs
     function switchTab(tabId, el) {
-      if (!document.startViewTransition) {
-        doTabSwitch(tabId, el);
-        return;
-      }
-      document.startViewTransition(() => {
-        doTabSwitch(tabId, el);
-      });
-    }
-
-    function doTabSwitch(tabId, el) {
       document.querySelectorAll('.view-screen').forEach(s => s.classList.remove('active'));
-      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
 
       const targetScreen = document.getElementById('screen-' + tabId);
       if (targetScreen) targetScreen.classList.add('active');
-      if (el && el.classList.contains('nav-tab')) el.classList.add('active');
-
-      if (tabId === 'feed') loadFeedPosts();
+      if (el) el.classList.add('active');
+      
+      const topHeader = document.querySelector('.top-header');
+      if (tabId === 'home') {
+        topHeader.style.display = 'block';
+        loadFeedPosts();
+      } else {
+        topHeader.style.display = 'none';
+      }
+      
       if (tabId === 'map') loadMapClusters();
-      if (tabId === 'admin') loadAdminData();
     }
 
-    async function loadSituationBrief() {
-      try {
-        const res = await fetch(`/api/situation-room?community_id=${currentCommunityId}`);
-        if (!res.ok) throw new Error('Offline');
-        const data = await res.json();
-        
-        document.getElementById('briefTime').innerText = data.generated_at || 'Updated live';
-        document.getElementById('campusLiveBadge').innerText = (data.overall_status || 'ELEVATED') + ' THREAT LEVEL';
+    function setFeedCategory(cat, el) {
+      activeCategory = cat;
+      document.querySelectorAll('#mainTabs .tab-item').forEach(b => b.classList.remove('active'));
+      if (el) el.classList.add('active');
+      loadFeedPosts();
+    }
 
-        const bulletsBox = document.getElementById('briefBullets');
-        bulletsBox.innerHTML = '';
-        (data.summary_bullets || []).forEach(b => {
-          const item = document.createElement('div');
-          item.className = 'item';
-          item.innerHTML = `<span class="dot">●</span><span>${b}</span>`;
-          bulletsBox.appendChild(item);
-        });
-      } catch (err) {}
+    function openComposeModal() { document.getElementById('composeModal').classList.add('active'); }
+    function closeComposeModal() { document.getElementById('composeModal').classList.remove('active'); }
+
+    function switchCommunity() {
+      currentCommunityId = currentCommunityId === 'kwasu_main' ? 'ilorin_central' : 'kwasu_main';
+      document.getElementById('communityNameDisplay').innerText = currentCommunityId.replace('_', ' ').toUpperCase();
+      loadFeedPosts();
     }
 
     async function loadFeedPosts() {
@@ -1185,7 +682,7 @@
         feedBox.innerHTML = '';
 
         if (!data.reports || data.reports.length === 0) {
-          feedBox.innerHTML = `<div style="padding:40px 20px; text-align:center; color:var(--text-muted); font-size:14px; font-weight:600;">System Nominal.<br>No reports logged.</div>`;
+          feedBox.innerHTML = `<div style="padding:40px 20px; text-align:center; color:var(--text-muted); font-size:15px;">Welcome to Sentry.<br>No incident reports logged yet.</div>`;
           return;
         }
 
@@ -1193,61 +690,45 @@
           const post = document.createElement('div');
           post.className = 'post';
 
-          const catClass = `cat-${r.category}`;
-          const initial = r.reporter_handle ? r.reporter_handle.charAt(0) : 'A';
+          const initial = r.reporter_handle ? r.reporter_handle.charAt(0).toUpperCase() : 'A';
+          const handle = r.reporter_handle || 'Anonymous';
+          
+          let aiQuote = '';
+          if (r.ai_reply) {
+            aiQuote = `
+              <div class="ai-quote">
+                <div class="ai-quote-avatar"><svg viewBox="0 0 24 24"><path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.918-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.337 2.25c-.416-.165-.866-.25-1.336-.25-2.21 0-3.918 1.79-3.918 4 0 .495.084.965.238 1.4-1.273.65-2.148 2.02-2.148 3.6 0 1.46.758 2.76 1.907 3.46-.057.243-.092.497-.092.76 0 2.21 1.71 4 3.918 4 .47 0 .92-.086 1.336-.25C9.184 22.585 10.49 23.5 12 23.5s2.816-.917 3.337-2.25c.416.164.866.25 1.336.25 2.21 0 3.918-1.79 3.918-4 0-.263-.035-.517-.092-.76 1.15-.7 1.907-2 1.907-3.46zM10.495 17.51l-3.328-3.23 1.414-1.41 1.914 1.86 5.08-4.93 1.41 1.41-6.49 6.3z"/></svg></div>
+                <div class="ai-quote-body">
+                  <div class="ai-quote-title">Gemma Analysis <span style="font-weight:400; color:var(--text-muted); font-size:13px;">· ${r.confidence_score}%</span></div>
+                  <div class="ai-quote-text">${r.ai_reply}</div>
+                </div>
+              </div>
+            `;
+          }
 
           post.innerHTML = `
-            <div class="post-head">
-              <div class="avatar">${initial}</div>
-              <div class="post-main">
-                <div class="post-top-row">
-                  <span class="handle">${r.reporter_handle || 'Anon'}</span>
-                  <span class="meta">${r.location}</span>
-                </div>
-                <div class="post-text">${r.anonymized_text}</div>
-                
-                <div class="ai-reply">
-                  <div class="ai-reply-head">
-                    <span class="verified-badge"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="3"/></svg></span>
-                    <span class="ai-name">Gemma Verified</span>
-                  </div>
-                  <div class="ai-reply-body">${r.ai_reply || 'Report logged.'}</div>
-                  <div class="ai-reply-tags">
-                    <span class="cat-badge ${catClass}">${r.category.toUpperCase()}</span>
-                    <span class="stars">★★★★ ${r.confidence_score}%</span>
-                    ${r.is_urgent ? `<span class="badge-tag" style="background:color-mix(in srgb, var(--security) 15%, transparent); border-color:var(--security); color:var(--security);">URGENT</span>` : ''}
-                  </div>
-                </div>
-
-                <div class="post-actions">
-                  <button class="action-btn" onclick="confirmReport(${r.id}, this)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-                    <span>Validate</span>
-                  </button>
-                  <button class="action-btn" onclick="showClusterDetail('${r.cluster_id}')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-                    <span>Cluster Insights</span>
-                  </button>
-                </div>
+            <div class="post-avatar">${initial}</div>
+            <div class="post-content">
+              <div class="post-header">
+                <span class="post-name">${handle}</span>
+                <span class="post-handle">@${handle.toLowerCase()}</span>
+                <span class="post-time">· ${r.location}</span>
+              </div>
+              <div class="post-text">${r.anonymized_text}</div>
+              
+              ${aiQuote}
+              
+              <div class="post-actions">
+                <button class="action-btn"><svg viewBox="0 0 24 24"><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.11-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13H9.756z"/></svg> <span>12</span></button>
+                <button class="action-btn green"><svg viewBox="0 0 24 24"><path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/></svg> <span>3</span></button>
+                <button class="action-btn red"><svg viewBox="0 0 24 24"><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"/></svg> <span>45</span></button>
+                <button class="action-btn"><svg viewBox="0 0 24 24"><path d="M12 2.59l5.7 5.7-1.41 1.42L13 6.41V16h-2V6.41l-3.3 3.3-1.41-1.42L12 2.59zM21 15l-.02 3.51c0 1.38-1.12 2.49-2.5 2.49H5.5C4.11 21 3 19.88 3 18.5V15h2v3.5c0 .28.22.5.5.5h12.98c.28 0 .5-.22.5-.5L19 15h2z"/></svg></button>
               </div>
             </div>
           `;
           feedBox.appendChild(post);
         });
       } catch (err) {}
-    }
-
-    function filterFeed(cat, el) {
-      activeCategory = cat;
-      document.querySelectorAll('#screen-feed .filter-pill').forEach(b => b.classList.remove('active'));
-      if (el) el.classList.add('active');
-      loadFeedPosts();
-    }
-
-    function selectComposerCat(cat, el) {
-      selectedComposerCategory = cat;
-      document.querySelectorAll('#composerCategoryList .filter-pill').forEach(b => b.classList.remove('active'));
-      if (el) el.classList.add('active');
     }
 
     async function submitReportFromWeb() {
@@ -1263,30 +744,23 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             text, location, community_id: currentCommunityId,
-            category: selectedComposerCategory, anonymous: isAnon, source_type: 'web'
+            category: 'general', anonymous: isAnon, source_type: 'web'
           })
         });
 
         const data = await res.json();
         if (data.status === 'success') {
           if (data.report.is_urgent) {
-            triggerEmergencyBanner(`🚨 URGENT: ${data.report.location} escalated!`);
+            const banner = document.getElementById('emergencyBanner');
+            document.getElementById('emergencyText').innerText = `🚨 URGENT: ${data.report.location}`;
+            banner.style.display = 'flex';
           }
           document.getElementById('reportTextInput').value = '';
-          switchTab('feed', document.querySelectorAll('.nav-tab')[0]);
-          loadSituationBrief();
+          closeComposeModal();
+          loadFeedPosts();
         }
       } catch (err) {}
     }
-
-    function triggerEmergencyBanner(msg) {
-      const banner = document.getElementById('emergencyBanner');
-      document.getElementById('emergencyText').innerText = msg;
-      banner.style.display = 'flex';
-    }
-
-    function simulateVoiceNote() { document.getElementById('reportTextInput').value = "Voice transcribed: 'Heavy water leak near pump house.'"; }
-    function simulatePhotoAttach() { document.getElementById('reportTextInput').value += " [Photo Attached]"; }
 
     async function submitAskQuery() {
       const q = document.getElementById('askQueryInput').value.trim();
@@ -1302,11 +776,12 @@
 
         const card = document.getElementById('ragResultBox');
         document.getElementById('ragAnswerText').innerText = data.answer;
-        document.getElementById('ragScore').innerText = `★ ${data.confidence_score}%`;
-        document.getElementById('ragCitationsText').innerText = `Citations: [${(data.citations || []).join(', ')}] | Grounded in [${currentCommunityId}]`;
+        document.getElementById('ragScore').innerText = `· ${data.confidence_score}% Match`;
+        document.getElementById('ragCitationsText').innerText = `Sources: ${data.citations.join(', ')}`;
         card.style.display = 'block';
       } catch (err) {}
     }
+    
     function runQuickAsk(text) { document.getElementById('askQueryInput').value = text; submitAskQuery(); }
 
     async function sendWaMessage() {
@@ -1315,7 +790,7 @@
       if (!text) return;
 
       const chatBox = document.getElementById('waChatArea');
-      chatBox.innerHTML += `<div class="wa-bubble wa-user">${text}</div>`;
+      chatBox.innerHTML += `<div style="align-self:flex-end; background:var(--brand); color:#fff; padding:12px 16px; border-radius:16px; border-bottom-right-radius:4px; max-width:80%; margin-top:8px;">${text}</div>`;
       input.value = '';
       chatBox.scrollTop = chatBox.scrollHeight;
 
@@ -1328,9 +803,8 @@
         const res = await fetch('/api/whatsapp/simulate', { method: 'POST', body: formData });
         const data = await res.json();
 
-        chatBox.innerHTML += `<div class="wa-bubble wa-bot">${data.whatsapp_reply.replace(/\n/g, '<br>')}</div>`;
+        chatBox.innerHTML += `<div style="align-self:flex-start; background:var(--divider); padding:12px 16px; border-radius:16px; border-bottom-left-radius:4px; max-width:80%; margin-top:8px;">${data.whatsapp_reply.replace(/\n/g, '<br>')}</div>`;
         chatBox.scrollTop = chatBox.scrollHeight;
-        loadSituationBrief();
       } catch (err) {}
     }
 
@@ -1342,76 +816,21 @@
         box.innerHTML = '';
         (data.clusters || []).forEach(c => {
           box.innerHTML += `
-            <div class="map-overlay-card" onclick="showClusterDetail('${c.id}')" style="cursor:pointer;">
-              <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                <span class="cat-badge cat-${c.category}">${c.category.toUpperCase()}</span>
-                <span class="stars">${c.report_count} reports</span>
+            <div class="post" onclick="alert('${c.title}')">
+              <div class="post-content">
+                <div class="post-header">
+                  <span class="post-name">${c.title}</span>
+                  <span class="post-handle">· ${c.category}</span>
+                </div>
+                <div class="post-text">${c.summary}</div>
+                <div style="font-size:13px; color:var(--text-muted);">📍 ${c.primary_location} · ${c.report_count} reports</div>
               </div>
-              <div style="font-size:16px; font-weight:700; color:#fff; margin-bottom:6px;">${c.title}</div>
-              <div style="font-size:14px; color:var(--text-muted); line-height:1.5;">${c.summary}</div>
             </div>`;
         });
       } catch (err) {}
     }
 
-    async function showClusterDetail(clusterId) {
-      try {
-        const res = await fetch(`/api/clusters/${clusterId}`);
-        const data = await res.json();
-        document.getElementById('modalClusterId').innerText = data.cluster.id;
-        document.getElementById('modalClusterTitle').innerText = data.cluster.title;
-        document.getElementById('modalClusterSummary').innerText = data.cluster.summary;
-        document.getElementById('modalClusterMeta').innerText = `${data.cluster.primary_location} | Sev: ${data.cluster.severity}/5`;
-
-        const subList = document.getElementById('modalSubReportsList');
-        subList.innerHTML = '';
-        (data.reports || []).forEach(r => {
-          subList.innerHTML += `<div style="background:var(--surface); padding:12px; border-radius:12px; font-size:13px; line-height:1.5;"><b style="color:var(--teal)">[${r.reporter_handle}]</b> ${r.anonymized_text}</div>`;
-        });
-
-        document.getElementById('detailModal').classList.add('active');
-      } catch (err) {}
-    }
-    function closeDetailModal() { document.getElementById('detailModal').classList.remove('active'); }
-
-    function unlockAdminDashboard() {
-      if (document.getElementById('adminPassKey').value) {
-        document.getElementById('adminLoginView').style.display = 'none';
-        document.getElementById('adminDashboardView').style.display = 'flex';
-        loadAdminData();
-      }
-    }
-
-    async function loadAdminData() {
-      try {
-        const statsRes = await fetch(`/api/admin/stats?community_id=${currentCommunityId}`);
-        const stats = await statsRes.json();
-        document.getElementById('statOpenIncidents').innerText = stats.open_incidents;
-        document.getElementById('statUrgentUnresolved').innerText = stats.urgent_unresolved;
-
-        const queueRes = await fetch(`/api/admin/urgent-queue?community_id=${currentCommunityId}`);
-        const queueData = await queueRes.json();
-        const queueBox = document.getElementById('adminUrgentQueueList');
-        queueBox.innerHTML = '';
-        (queueData.urgent_reports || []).forEach(r => {
-          queueBox.innerHTML += `<div style="background:var(--surface); border:1px solid var(--divider); border-left:4px solid var(--security); padding:16px; border-radius:16px; margin-bottom:12px;">
-            <div style="font-size:14px; font-weight:700; margin-bottom:8px;">${r.anonymized_text}</div>
-            <button class="mode-switch-btn" style="background:var(--security); color:#fff; border:none;" onclick="triageAction(${r.id}, 'dispatch')">Dispatch Responders</button>
-          </div>`;
-        });
-      } catch (err) {}
-    }
-    async function triageAction(reportId, action) {
-      await fetch(`/api/admin/triage/${reportId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action, notes: `Action ${action}` }) });
-      loadAdminData(); loadSituationBrief(); loadFeedPosts();
-    }
-    async function triggerAdminBriefGen() {
-      await fetch(`/api/admin/brief/generate?community_id=${currentCommunityId}`, { method: 'POST' });
-      loadSituationBrief();
-    }
-    function confirmReport(reportId, btn) { btn.style.color = 'var(--teal)'; btn.querySelector('span').innerText = 'Validated ✓'; }
-
-    loadSituationBrief(); loadFeedPosts();
+    loadFeedPosts();
   </script>
 </body>
 </html>
