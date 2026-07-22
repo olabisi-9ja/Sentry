@@ -262,7 +262,10 @@ async def get_situation_room(community_id: str = Query("kwasu_main")):
     return brief
 
 def verify_admin(x_admin_passcode: str = Header(None), admin_passcode: str = Query(None)):
-    expected_passcode = os.getenv("ADMIN_PASSCODE", "sentry_admin_123")
+    expected_passcode = os.getenv("ADMIN_PASSCODE")
+    if not expected_passcode:
+        raise HTTPException(status_code=500, detail="Admin passcode not configured on server")
+        
     provided = x_admin_passcode or admin_passcode
     if provided != expected_passcode:
         raise HTTPException(status_code=401, detail="Unauthorized: Invalid Admin Passcode")
