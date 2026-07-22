@@ -44,22 +44,29 @@ class GemmaEngine:
         return text.strip()
 
     @classmethod
-    def call_live_gemma_llm(cls, prompt: str, system_instruction: str = None) -> str:
+    def call_live_gemma_llm(cls, prompt: str, system_instruction: str = None, response_schema: dict = None, timeout: int = 5) -> str:
         gemini_key = os.getenv("GEMINI_API_KEY")
+        if not gemini_key:
+            return None
         
-        if gemini_key:
-            try:
-                # Strictly using the Gemma-4 model as requested
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemma-4-31b-it:generateContent?key={gemini_key}"
-                payload = {"contents": [{"parts": [{"text": f"{system_instruction}\n\n{prompt}"}]}]}
-                res = requests.post(url, json=payload, timeout=5)
-                if res.status_code == 200:
-                    return res.json()["candidates"][0]["content"]["parts"][0]["text"]
-                else:
-                    print(f"Gemma 4 API Error: {res.status_code} - {res.text}")
-            except Exception as e:
-                print(f"Gemma 4 Exception: {e}")
-                pass
+        try:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemma-4-12b-it:generateContent?key={gemini_key}"
+            generation_config = {}
+            if response_schema:
+                generation_config["responseMimeType"] = "application/json"
+                generation_config["responseJsonSchema"] = response_schema
+                
+            payload = {
+                "contents": [{"parts": [{"text": f"{system_instruction}\n\n{prompt}"}]}],
+                "generationConfig": generation_config
+            }
+            res = requests.post(url, json=payload, timeout=timeout)
+            if res.status_code == 200:
+                return res.json()["candidates"][0]["content"]["parts"][0]["text"]
+            else:
+                print(f"Gemma 4 API Error: {res.status_code} - {res.text}")
+        except Exception as e:
+            print(f"Gemma 4 Exception: {e}")
 
         return None
 
@@ -67,22 +74,26 @@ class GemmaEngine:
     def classify_and_triage(cls, raw_text: str, custom_location: str = None) -> dict:
         anonymized_text = cls.sanitize_pii(raw_text)
         
-        system_instruction = """You are Sentry AI. Your job is to classify and triage community incident reports.
-You must return your response as a valid JSON object without any markdown formatting.
-The JSON must contain the following keys:
-- "category": (string) one of ["security", "power", "water", "transport", "sanitation", "road_conditions", "community_patrol"]
-- "severity": (integer) 1 to 5 (5 is most severe)
-- "urgency_score": (float) 0.0 to 1.0 (1.0 is most urgent)
-- "is_urgent": (boolean) true if immediate action is needed, else false
-- "location": (string) extracted from the text, or a general area if not specific
-- "confidence_score": (integer) 0 to 100 based on how clear the report is
-"""
+        system_instruction = """You are Sentry AI. Your job is to classify and triage community incident reports."""
+        
+        CLASSIFY_SCHEMA = {
+            "type": "object",
+            "properties": {
+                "category": {"type": "string", "enum": ["security", "power", "water", "transport", "sanitation", "road_conditions", "community_patrol"]},
+                "severity": {"type": "integer"},
+                "urgency_score": {"type": "number"},
+                "is_urgent": {"type": "boolean"},
+                "location": {"type": "string"},
+            },
+            "required": ["category", "severity", "urgency_score", "is_urgent", "location"],
+            "propertyOrdering": ["category", "severity", "urgency_score", "is_urgent", "location"]
+        }
+        
         prompt = f"Analyze this report and provide the JSON.\nRaw report: '{anonymized_text}'\nCustom location hint: {custom_location or 'None'}"
         
         try:
-            response_text = cls.call_live_gemma_llm(prompt, system_instruction)
+            response_text = cls.call_live_gemma_llm(prompt, system_instruction, response_schema=CLASSIFY_SCHEMA)
             if response_text:
-                response_text = response_text.replace("```json", "").replace("```", "").strip()
                 triage_data = json.loads(response_text)
                 return {
                     "anonymized_text": anonymized_text,
@@ -91,7 +102,6 @@ The JSON must contain the following keys:
                     "urgency_score": round(float(triage_data.get("urgency_score", 0.5)), 2),
                     "is_urgent": bool(triage_data.get("is_urgent", False)),
                     "location": triage_data.get("location", "Unknown Location"),
-                    "confidence_score": int(triage_data.get("confidence_score", 80))
                 }
         except Exception as e:
             print(f"LLM Classification failed: {e}")
@@ -143,8 +153,6 @@ The JSON must contain the following keys:
             severity = min(5, severity + 1)
             is_urgent = True
 
-        confidence_score = 90 + min(9, (len(raw_text.split()) // 3))
-
         return {
             "anonymized_text": anonymized_text,
             "category": selected_category,
@@ -152,8 +160,14 @@ The JSON must contain the following keys:
             "urgency_score": round(urgency_score, 2),
             "is_urgent": is_urgent,
             "location": location,
-            "confidence_score": confidence_score
         }
+
+    @staticmethod
+    def compute_confidence(report_count: int) -> int:
+        if report_count >= 5: return 95
+        if report_count >= 3: return 80
+        if report_count == 2: return 60
+        return 35  # single, uncorroborated report — low on purpose, not a bug
 
     @classmethod
     def find_or_create_cluster(cls, conn, community_id: str, category: str, location: str, text: str, severity: int) -> tuple:
@@ -171,7 +185,7 @@ The JSON must contain the following keys:
                 cursor.execute("""
                     UPDATE clusters SET report_count = %s, updated_at = CURRENT_TIMESTAMP WHERE id = %s
                 """, (new_count, c_id))
-                return c_id, f"Clustered with {new_count} similar reports in {community_id}. {cluster['summary']}"
+                return c_id, f"Clustered with {new_count} similar reports in {community_id}. {cluster['summary']}", new_count
 
         cursor.execute("SELECT COUNT(*) as count FROM clusters;")
         c_num = cursor.fetchone()["count"] + 101
@@ -184,21 +198,23 @@ The JSON must contain the following keys:
             VALUES (%s, %s, %s, %s, %s, %s, 'active', 1, %s)
         """, (new_c_id, community_id, new_title, category, location, severity, new_summary))
 
-        return new_c_id, f"New incident log created [{new_c_id}] for community [{community_id}]."
+        return new_c_id, f"New incident log created [{new_c_id}] for community [{community_id}].", 1
 
     @classmethod
     def process_new_report(cls, raw_text: str, community_id: str = "kwasu_main", location: str = None, source_type: str = "web", reporter_handle: str = "Anon Student") -> dict:
         triage = cls.classify_and_triage(raw_text, location)
 
         conn = get_db_connection()
-        cluster_id, cluster_note = cls.find_or_create_cluster(
+        cluster_id, cluster_note, cluster_report_count = cls.find_or_create_cluster(
             conn, community_id, triage["category"], triage["location"], raw_text, triage["severity"]
         )
 
+        confidence_score = cls.compute_confidence(cluster_report_count)
+
         if triage["is_urgent"]:
-            ai_reply = f"🚨 URGENT FLAG ({triage['confidence_score']}% confidence): Escalated to Dispatch / Community Liaisons. {cluster_note}"
+            ai_reply = f"🚨 URGENT FLAG ({confidence_score}% confidence): Escalated to Dispatch / Community Liaisons. {cluster_note}"
         else:
-            ai_reply = f"Verified report ({triage['confidence_score']}% confidence). {cluster_note}"
+            ai_reply = f"Verified report ({confidence_score}% confidence). {cluster_note}"
 
         cursor = conn.cursor()
         cursor.execute("""
@@ -212,10 +228,10 @@ The JSON must contain the following keys:
             triage["category"],
             triage["severity"],
             triage["urgency_score"],
-            bool(triage["is_urgent"]),
+            triage["is_urgent"],
             triage["location"],
             cluster_id,
-            triage["confidence_score"],
+            confidence_score,
             source_type,
             reporter_handle,
             ai_reply
