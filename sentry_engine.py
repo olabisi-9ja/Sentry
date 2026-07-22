@@ -59,7 +59,7 @@ class GemmaEngine:
                     ],
                     "temperature": 0.2
                 }
-                res = requests.post("https://api.groq.com/openai/v1/chat/completions", json=payload, headers=headers, timeout=8)
+                res = requests.post("https://api.groq.com/openai/v1/chat/completions", json=payload, headers=headers, timeout=5)
                 if res.status_code == 200:
                     return res.json()["choices"][0]["message"]["content"]
             except Exception as e:
@@ -69,7 +69,7 @@ class GemmaEngine:
             try:
                 url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_key}"
                 payload = {"contents": [{"parts": [{"text": f"{system_instruction}\n\n{prompt}"}]}]}
-                res = requests.post(url, json=payload, timeout=30)
+                res = requests.post(url, json=payload, timeout=5)
                 if res.status_code == 200:
                     return res.json()["candidates"][0]["content"]["parts"][0]["text"]
             except Exception as e:
