@@ -219,6 +219,7 @@ The JSON must contain the following keys:
         cursor.execute("""
             INSERT INTO reports (community_id, raw_text, anonymized_text, category, severity, urgency_score, is_urgent, location, cluster_id, status, confidence_score, source_type, reporter_handle, ai_reply)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'open', %s, %s, %s, %s)
+            RETURNING *
         """, (
             community_id,
             raw_text,
@@ -235,11 +236,8 @@ The JSON must contain the following keys:
             ai_reply
         ))
 
-        report_id = cursor.lastrowid
-        conn.commit()
-
-        cursor.execute("SELECT * FROM reports WHERE id = %s", (report_id,))
         report_row = dict(cursor.fetchone())
+        conn.commit()
         conn.close()
 
         return report_row
