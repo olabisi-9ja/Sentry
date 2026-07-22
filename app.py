@@ -4,6 +4,7 @@ import logging
 import sqlite3
 from fastapi import FastAPI, Request, Form, Query, HTTPException, Response
 from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
+import html
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
@@ -115,9 +116,10 @@ async def handle_twilio_incoming_webhook(From: str = Form(...), Body: str = Form
     reply_text = process_whatsapp_text(text_body, sender_phone=from_phone)
     wa_client.send_text_message(from_phone, reply_text)
 
+    safe_reply = html.escape(reply_text)
     twiml_xml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-    <Message>{reply_text}</Message>
+    <Message>{safe_reply}</Message>
 </Response>"""
     return Response(content=twiml_xml, media_type="application/xml")
 
