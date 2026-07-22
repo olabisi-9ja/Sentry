@@ -67,7 +67,7 @@ class GemmaEngine:
 
         if gemini_key:
             try:
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_key}"
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={gemini_key}"
                 payload = {"contents": [{"parts": [{"text": f"{system_instruction}\n\n{prompt}"}]}]}
                 res = requests.post(url, json=payload, timeout=5)
                 if res.status_code == 200:
