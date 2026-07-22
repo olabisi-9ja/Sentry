@@ -2,7 +2,7 @@ import os
 import json
 import logging
 import sqlite3
-from fastapi import FastAPI, Request, Form, Query, HTTPException, Response
+from fastapi import FastAPI, Request, Form, Query, HTTPException, Response, Header, Depends
 from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
 import html
 from fastapi.staticfiles import StaticFiles
@@ -261,13 +261,19 @@ async def get_situation_room(community_id: str = Query("kwasu_main")):
         pass
     return brief
 
+def verify_admin(x_admin_passcode: str = Header(None), admin_passcode: str = Query(None)):
+    expected_passcode = os.getenv("ADMIN_PASSCODE", "sentry_admin_123")
+    provided = x_admin_passcode or admin_passcode
+    if provided != expected_passcode:
+        raise HTTPException(status_code=401, detail="Unauthorized: Invalid Admin Passcode")
+
 @app.post("/api/admin/brief/generate")
-async def generate_brief_admin(community_id: str = Query("kwasu_main")):
+async def generate_brief_admin(community_id: str = Query("kwasu_main"), admin: None = Depends(verify_admin)):
     brief = GemmaEngine.generate_situation_brief(community_id=community_id)
     return {"status": "success", "brief": brief}
 
 @app.get("/api/admin/stats")
-async def get_admin_stats(community_id: str = Query("kwasu_main")):
+async def get_admin_stats(community_id: str = Query("kwasu_main"), admin: None = Depends(verify_admin)):
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -296,7 +302,7 @@ async def get_admin_stats(community_id: str = Query("kwasu_main")):
     }
 
 @app.get("/api/admin/urgent-queue")
-async def get_urgent_queue(community_id: str = Query("kwasu_main")):
+async def get_urgent_queue(community_id: str = Query("kwasu_main"), admin: None = Depends(verify_admin)):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM reports WHERE community_id = %s AND is_urgent = TRUE AND status != 'resolved' ORDER BY urgency_score DESC, created_at DESC", (community_id,))
@@ -305,7 +311,7 @@ async def get_urgent_queue(community_id: str = Query("kwasu_main")):
     return {"urgent_reports": urgent_reports, "count": len(urgent_reports), "community_id": community_id}
 
 @app.post("/api/admin/triage/{report_id}")
-async def action_triage(report_id: int, payload: TriageAction):
+async def action_triage(report_id: int, payload: TriageAction, admin: None = Depends(verify_admin)):
     conn = get_db_connection()
     cursor = conn.cursor()
 

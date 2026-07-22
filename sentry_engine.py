@@ -44,36 +44,21 @@ class GemmaEngine:
         return text.strip()
 
     @classmethod
-    def call_live_gemma_llm(cls, prompt: str, system_instruction: str = "") -> str:
-        groq_key = os.getenv("GROQ_API_KEY")
-        gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GEMMA_API_KEY")
-
-        if groq_key:
-            try:
-                headers = {"Authorization": f"Bearer {groq_key}", "Content-Type": "application/json"}
-                payload = {
-                    "model": "gemma2-9b-it",
-                    "messages": [
-                        {"role": "system", "content": system_instruction or "You are Sentry AI powered by Gemma 4 for community intelligence."},
-                        {"role": "user", "content": prompt}
-                    ],
-                    "temperature": 0.2
-                }
-                res = requests.post("https://api.groq.com/openai/v1/chat/completions", json=payload, headers=headers, timeout=5)
-                if res.status_code == 200:
-                    return res.json()["choices"][0]["message"]["content"]
-            except Exception as e:
-                pass
-
+    def call_live_gemma_llm(cls, prompt: str, system_instruction: str = None) -> str:
+        gemini_key = os.getenv("GEMINI_API_KEY")
+        
         if gemini_key:
             try:
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={gemini_key}"
+                # Strictly using the Gemma-4 model as requested
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemma-4-31b-it:generateContent?key={gemini_key}"
                 payload = {"contents": [{"parts": [{"text": f"{system_instruction}\n\n{prompt}"}]}]}
                 res = requests.post(url, json=payload, timeout=5)
                 if res.status_code == 200:
                     return res.json()["candidates"][0]["content"]["parts"][0]["text"]
+                else:
+                    print(f"Gemma 4 API Error: {res.status_code} - {res.text}")
             except Exception as e:
-                print(f"Gemini API Error: {e}")
+                print(f"Gemma 4 Exception: {e}")
                 pass
 
         return None
