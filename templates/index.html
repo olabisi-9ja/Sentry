@@ -757,8 +757,8 @@
               ${aiQuote}
               
               <div class="post-actions" style="justify-content: flex-start; gap: 24px;">
-                <button class="action-btn red" onclick="toggleReaction(this, 'like')"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> <span class="count">${Math.floor(Math.random() * 50) + 1}</span></button>
-                <button class="action-btn" onclick="toggleReaction(this, 'dislike')"><svg viewBox="0 0 24 24" style="transform: rotate(180deg);"><path d="M12 2.65l1.45 1.32C18.6 8.64 22 11.72 22 15.5c0 3.08-2.42 5.5-5.5 5.5-1.74 0-3.41-.81-4.5-2.09C10.91 20.19 9.24 21 7.5 21 4.42 21 2 18.58 2 15.5c0-3.78 3.4-6.86 8.55-11.54L12 2.65z"/></svg> <span class="count">${Math.floor(Math.random() * 10)}</span></button>
+                <button class="action-btn" onclick="toggleReaction(this, 'like')" style="color:var(--text-muted);"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg> <span class="count">${Math.floor(Math.random() * 50) + 1}</span></button>
+                <button class="action-btn" onclick="toggleReaction(this, 'dislike')" style="color:var(--text-muted);"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg> <span class="count">${Math.floor(Math.random() * 10)}</span></button>
               </div>
             </div>
           `;
