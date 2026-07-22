@@ -227,7 +227,7 @@ The JSON must contain the following keys:
             triage["category"],
             triage["severity"],
             triage["urgency_score"],
-            1 if triage["is_urgent"] else 0,
+            bool(triage["is_urgent"]),
             triage["location"],
             cluster_id,
             triage["confidence_score"],

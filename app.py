@@ -170,7 +170,7 @@ async def get_reports(
 
     if is_urgent is not None:
         query += " AND is_urgent = %s"
-        params.append(1 if is_urgent else 0)
+        params.append(bool(is_urgent))
 
     if status:
         query += " AND status = %s"
