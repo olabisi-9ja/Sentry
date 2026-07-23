@@ -44,13 +44,13 @@ class GemmaEngine:
         return text.strip()
 
     @classmethod
-    def call_live_gemma_llm(cls, prompt: str, system_instruction: str = None, response_schema: dict = None, timeout: int = 5) -> str:
+    def call_live_gemma_llm(cls, prompt: str, system_instruction: str = None, response_schema: dict = None, timeout: int = 5, model: str = "gemma-4-12b-it") -> str:
         gemini_key = os.getenv("GEMINI_API_KEY")
         if not gemini_key:
             return None
         
         try:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemma-4-12b-it:generateContent?key={gemini_key}"
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={gemini_key}"
             generation_config = {}
             if response_schema:
                 generation_config["responseMimeType"] = "application/json"
@@ -305,7 +305,7 @@ class GemmaEngine:
         }
 
     @classmethod
-    def generate_situation_brief(cls, community_id: str = "kwasu_main") -> dict:
+    def generate_situation_brief(cls, community_id: str = "kwasu_main", model: str = "gemma-4-12b-it") -> dict:
         conn = get_db_connection()
         cursor = conn.cursor()
 
@@ -322,7 +322,7 @@ class GemmaEngine:
             prompt = f"Active Clusters in {community_id}:\n{context}\n\nProvide the bulleted summary."
             
             try:
-                ans = cls.call_live_gemma_llm(prompt, system_instruction)
+                ans = cls.call_live_gemma_llm(prompt, system_instruction, timeout=15 if model == "gemma-4-31b-it" else 5, model=model)
                 if ans:
                     bullets = [b.strip("-* ").strip() for b in ans.split("\n") if b.strip("-* ").strip()]
                     if not bullets:

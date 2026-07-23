@@ -21,6 +21,14 @@ app = FastAPI(
 )
 
 wa_client = WhatsAppClient()
+STAFF_WHATSAPP_NUMBER = os.getenv("SECURITY_STAFF_WHATSAPP_NUMBER")
+
+def notify_staff_if_urgent(report: dict):
+    if report.get("is_urgent") and STAFF_WHATSAPP_NUMBER:
+        alert = (f"🚨 SENTRY URGENT — {report['category'].upper()}\n"
+                 f"Location: {report['location']}\nConfidence: {report['confidence_score']}%\n"
+                 f"Cluster: {report['cluster_id']}\nReport: {report['anonymized_text']}")
+        wa_client.send_text_message(STAFF_WHATSAPP_NUMBER, alert)
 
 @app.on_event("startup")
 def startup_event():
@@ -144,6 +152,8 @@ def process_whatsapp_text(text: str, sender_phone: str, community_id: str = "kwa
         reporter_handle=f"WA Student ({sender_phone[-4:]})"
     )
 
+    notify_staff_if_urgent(report)
+
     if report["is_urgent"]:
         return f"🚨 *SENTRY EMERGENCY TRIAGE ALERT*\n\nReport classified as *URGENT ({report['category'].upper()})* in [{community_id}].\n\n*Cluster:* {report['cluster_id']}\n*Location:* {report['location']}\n*Action:* Escalated to Dispatcher."
     else:
@@ -207,6 +217,7 @@ async def create_report(payload: ReportCreate):
         source_type=payload.source_type,
         reporter_handle=reporter_handle
     )
+    notify_staff_if_urgent(result)
     return {"status": "success", "report": result}
 
 @app.post("/api/ask")
@@ -261,18 +272,17 @@ async def get_situation_room(community_id: str = Query("kwasu_main")):
         pass
     return brief
 
-def verify_admin(x_admin_passcode: str = Header(None), admin_passcode: str = Query(None)):
+def verify_admin(x_admin_passcode: str = Header(None)):
     expected_passcode = os.getenv("ADMIN_PASSCODE")
     if not expected_passcode:
         raise HTTPException(status_code=500, detail="Admin passcode not configured on server")
         
-    provided = x_admin_passcode or admin_passcode
-    if provided != expected_passcode:
+    if x_admin_passcode != expected_passcode:
         raise HTTPException(status_code=401, detail="Unauthorized: Invalid Admin Passcode")
 
 @app.post("/api/admin/brief/generate")
 async def generate_brief_admin(community_id: str = Query("kwasu_main"), admin: None = Depends(verify_admin)):
-    brief = GemmaEngine.generate_situation_brief(community_id=community_id)
+    brief = GemmaEngine.generate_situation_brief(community_id=community_id, model="gemma-4-31b-it")
     return {"status": "success", "brief": brief}
 
 @app.get("/api/admin/stats")

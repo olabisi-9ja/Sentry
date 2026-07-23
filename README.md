@@ -3,7 +3,7 @@
 Sentry is an AI-powered, multi-tenant community intelligence platform. It ingests unstructured incident reports from multiple sources (WhatsApp, Web), categorizes them using **Gemma 4**, extracts critical context (severity, location), and routes urgent threats directly to a live Situation Room Dashboard.
 
 ## Core Features
-1. **Gemma 4 AI Engine:** Sentry strictly utilizes `gemma-4-31b-it` via the Gemini API to parse unstructured text, identify emergencies, and provide triage actions.
+1. **Gemma 4 AI Engine:** Sentry utilizes `gemma-4-12b-it` via the Gemini API for fast live WhatsApp processing (triage, RAG, fallback briefs), and `gemma-4-31b-it` for admin-generated situation briefs.
 2. **Multi-Tenant Architecture:** Built from the ground up to support multiple communities (e.g., `kwasu_main`, `ilorin_central`) within a single unified database.
 3. **Omni-Channel Ingestion:** Intercepts live reports via Twilio WhatsApp Webhooks and direct Web App submissions.
 4. **Secure Admin Triage:** Administrator-only protected routes for dispatching responders and synthesizing RAG-powered situation briefs.
@@ -28,4 +28,4 @@ Sentry is an AI-powered, multi-tenant community intelligence platform. It ingest
 4. Run the server: `python app.py`
 
 ## Administration
-Admin API routes are secured. You must pass your passcode via the `x-admin-passcode` HTTP Header or the `admin_passcode` query parameter to access the `/api/admin/*` endpoints.
+Admin API routes are secured. You must pass your passcode via the `x-admin-passcode` HTTP Header to access the `/api/admin/*` endpoints. Query parameters are not supported to prevent logging of passcodes.
