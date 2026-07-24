@@ -7,6 +7,7 @@
 <title>Sentry — AI Intelligence Hub</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap');
+  @import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
 
   :root {
     color-scheme: dark;
@@ -639,15 +640,11 @@
       <!-- 3. MAP SCREEN (NOTIFICATIONS EQUIVALENT) -->
       <div class="view-screen" id="screen-map">
         <div class="search-wrapper" style="border:none; padding-bottom:0;">
-          <h2 style="font-size:20px; font-weight:800; padding:12px 0;">Cluster Map</h2>
+          <h2 style="font-size:20px; font-weight:800; padding:12px 0;">Live Cluster Map</h2>
         </div>
-        <div class="map-wrapper">
-          <div class="map-grid-bg"></div>
-          
-          <div class="map-pin" style="top: 30%; left: 40%; background: var(--power);" onclick="alert('Power Cluster')"></div>
-          <div class="map-pin" style="top: 60%; left: 70%; background: var(--security);" onclick="alert('Security Cluster')"></div>
-          <div class="map-pin" style="top: 80%; left: 20%; background: var(--water);" onclick="alert('Water Cluster')"></div>
-        </div>
+        
+        <!-- Leaflet Map Container -->
+        <div id="leafletMap" style="width: 100%; height: 400px; z-index: 1; border-bottom: 1px solid var(--divider);"></div>
         
         <div id="mapClustersList">
           <!-- Clusters as list items -->
@@ -733,6 +730,7 @@
     </div>
   </div>
 
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     let currentCommunityId = 'kwasu_main';
     let activeCategory = 'all';
@@ -960,12 +958,59 @@
       } catch (err) {}
     }
 
+    let clusterMap = null;
+    let mapMarkers = [];
+
+    const locationCoordinates = {
+      "Hostel Block C": [8.716, 4.468],
+      "Hostel Block D": [8.717, 4.469],
+      "Hostel Block A": [8.714, 4.467],
+      "Hostel Block B": [8.715, 4.468],
+      "Hall B Hostel": [8.715, 4.468],
+      "Engineering Gate": [8.712, 4.471],
+      "Main Gate Stop": [8.710, 4.475],
+      "Library Annex": [8.713, 4.469],
+      "Senate Building": [8.714, 4.470],
+      "Lecture Hall C": [8.715, 4.472],
+      "Malete Central Market": [8.705, 4.480],
+      "Ilorin Expressway Junction": [8.690, 4.490],
+      "General Sector Grounds": [8.715, 4.469]
+    };
+
+    function initMap() {
+      if (clusterMap) return;
+      clusterMap = L.map('leafletMap').setView([8.715, 4.469], 15);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(clusterMap);
+
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(pos => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          clusterMap.setView([lat, lng], 15);
+          L.marker([lat, lng]).addTo(clusterMap).bindPopup("<b>You are here</b>").openPopup();
+        });
+      }
+    }
+
     async function loadMapClusters() {
       try {
+        if (!clusterMap && document.getElementById('leafletMap')) {
+          initMap();
+        }
+        
         const res = await fetch(`/api/clusters?community_id=${currentCommunityId}`);
         const data = await res.json();
+        
+        if (clusterMap) {
+          mapMarkers.forEach(m => clusterMap.removeLayer(m));
+          mapMarkers = [];
+        }
+        
         const box = document.getElementById('mapClustersList');
         box.innerHTML = '';
+        
         (data.clusters || []).forEach(c => {
           box.innerHTML += `
             <div class="post" onclick="alert('${c.title}')">
@@ -978,6 +1023,23 @@
                 <div style="font-size:13px; color:var(--text-muted); font-weight:600;">📍 ${c.primary_location} · ${c.report_count} reports</div>
               </div>
             </div>`;
+            
+          if (clusterMap) {
+            let coords = locationCoordinates[c.primary_location];
+            if (!coords) {
+               coords = [8.715 + (Math.random() - 0.5) * 0.01, 4.469 + (Math.random() - 0.5) * 0.01];
+            }
+            
+            let color = c.category === 'security' ? 'red' : (c.category === 'power' ? 'gold' : 'blue');
+            
+            const marker = L.circleMarker(coords, {
+              color: color,
+              fillColor: color,
+              fillOpacity: 0.7,
+              radius: 8
+            }).addTo(clusterMap).bindPopup(`<b>${c.title}</b><br>${c.report_count} reports`);
+            mapMarkers.push(marker);
+          }
         });
       } catch (err) {}
     }

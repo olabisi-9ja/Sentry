@@ -72,7 +72,7 @@ class GemmaEngine:
         return None
 
     @classmethod
-    def call_live_gemma_llm(cls, prompt: str, system_instruction: str = None, response_schema: dict = None, timeout: int = 5, model: str = "gemma-4-12b-it") -> str:
+    def call_live_gemma_llm(cls, prompt: str, system_instruction: str = None, response_schema: dict = None, timeout: int = 5, model: str = "gemini-1.5-flash") -> str:
         gemini_key = settings.GEMINI_API_KEY or os.getenv("GEMINI_API_KEY")
         if not gemini_key:
             logger.warning("GEMINI_API_KEY is not set. Cannot call LLM.")
@@ -347,7 +347,7 @@ class GemmaEngine:
         }
 
     @classmethod
-    def generate_situation_brief(cls, community_id: str = "kwasu_main", model: str = "gemma-4-12b-it") -> dict:
+    def generate_situation_brief(cls, community_id: str = "kwasu_main", model: str = "gemini-1.5-flash") -> dict:
         conn = get_db_connection()
         cursor = conn.cursor()
 
