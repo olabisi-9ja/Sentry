@@ -73,13 +73,9 @@ class GemmaEngine:
 
     @classmethod
     def call_live_gemma_llm(cls, prompt: str, system_instruction: str = None, response_schema: dict = None, timeout: int = 5, model: str = "gemma-4-12b-it") -> str:
-        ollama_url = settings.OLLAMA_BASE_URL or os.getenv("OLLAMA_BASE_URL")
-        use_ollama = settings.USE_OLLAMA.lower() == "true" if isinstance(settings.USE_OLLAMA, str) else bool(settings.USE_OLLAMA)
-        if ollama_url or use_ollama:
-            return cls._call_ollama(prompt, system_instruction, response_schema, timeout=120)
-
         gemini_key = settings.GEMINI_API_KEY or os.getenv("GEMINI_API_KEY")
         if not gemini_key:
+            logger.warning("GEMINI_API_KEY is not set. Cannot call LLM.")
             return None
         
         try:
