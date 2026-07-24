@@ -117,12 +117,12 @@ class GemmaEngine:
     def classify_and_triage(cls, raw_text: str, custom_location: str = None) -> dict:
         anonymized_text = cls.sanitize_pii(raw_text)
         
-        system_instruction = """You are Sentry AI. Your job is to classify and triage community incident reports. If the report is gibberish, spam, or clearly not an incident, set the category to 'invalid'."""
+        system_instruction = """You are Sentry AI. Your job is to classify and triage community incident reports. If the report is gibberish, spam, or clearly not an incident, set the category to 'invalid'. If the report is a greeting (e.g., 'hello') or an introductory statement (e.g., 'i have a report') without specific incident details, set the category to 'needs_info'."""
         
         CLASSIFY_SCHEMA = {
             "type": "object",
             "properties": {
-                "category": {"type": "string", "enum": ["security", "power", "water", "transport", "sanitation", "road_conditions", "community_patrol", "invalid"]},
+                "category": {"type": "string", "enum": ["security", "power", "water", "transport", "sanitation", "road_conditions", "community_patrol", "invalid", "needs_info"]},
                 "severity": {"type": "integer"},
                 "urgency_score": {"type": "number"},
                 "is_urgent": {"type": "boolean"},
@@ -155,10 +155,10 @@ class GemmaEngine:
     def _fallback_classify_and_triage(cls, anonymized_text: str, raw_text: str, custom_location: str = None) -> dict:
         lower_text = raw_text.lower()
         
-        if len(lower_text) < 5 or not any(c in lower_text for c in ['a', 'e', 'i', 'o', 'u']):
+        if len(lower_text) < 15 and not any(kw in lower_text for kw in ["fire", "gun", "thief", "rob", "dead", "blood"]):
             return {
                 "anonymized_text": anonymized_text,
-                "category": "invalid",
+                "category": "needs_info" if any(w in lower_text for w in ["hello", "hi", "hey", "report"]) else "invalid",
                 "severity": 0,
                 "urgency_score": 0.0,
                 "is_urgent": False,
@@ -259,6 +259,9 @@ class GemmaEngine:
 
         if triage.get("category") == "invalid":
             return {"status": "error", "message": "Report appears to be invalid or gibberish. Please provide clear incident details.", "is_urgent": False, "category": "invalid"}
+            
+        if triage.get("category") == "needs_info":
+            return {"status": "error", "message": "I am Sentry AI. Please provide the details of the incident, including what is happening and your approximate location.", "is_urgent": False, "category": "needs_info"}
 
         conn = get_db_connection()
         cluster_id, cluster_note, cluster_report_count = cls.find_or_create_cluster(
