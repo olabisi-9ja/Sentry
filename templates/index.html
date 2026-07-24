@@ -841,28 +841,28 @@
           const confStatus = isVerified ? 'Verified' : 'Unverified';
           const confClass = isVerified ? 'verified' : 'unverified';
 
-          post.innerHTML = \`
-            <div class="post-avatar">\${initial}</div>
+          post.innerHTML = `
+            <div class="post-avatar">${initial}</div>
             <div class="post-content">
               <div class="post-header" style="justify-content: space-between;">
                 <div style="display:flex; align-items:center; gap:6px;">
-                  <span class="post-name">\${handle}</span>
-                  <span class="post-handle">· \${r.location}</span>
+                  <span class="post-name">${handle}</span>
+                  <span class="post-handle">· ${r.location}</span>
                 </div>
-                \${categoryChip}
+                ${categoryChip}
               </div>
               
-              \${urgentLabel}
-              <div class="post-text">\${r.anonymized_text}</div>
+              ${urgentLabel}
+              <div class="post-text">${r.anonymized_text}</div>
               
-              \${aiQuote}
+              ${aiQuote}
               
               <div class="confidence-wrapper">
-                <span class="conf-label \${confClass}">\${confStatus}</span>
+                <span class="conf-label ${confClass}">${confStatus}</span>
                 <div class="conf-meter-bg">
-                  <div class="conf-meter-fill \${confClass}" style="width: \${confScore}%"></div>
+                  <div class="conf-meter-fill ${confClass}" style="width: ${confScore}%"></div>
                 </div>
-                <span class="conf-pct">\${confScore}%</span>
+                <span class="conf-pct">${confScore}%</span>
               </div>
               
               <div class="post-actions" style="max-width: 100%;">
@@ -873,7 +873,7 @@
                 <button class="action-btn" style="color:var(--text-muted);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
               </div>
             </div>
-          \`;
+          `;
           feedBox.appendChild(post);
         });
       } catch (err) {}
