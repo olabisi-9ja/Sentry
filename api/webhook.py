@@ -20,7 +20,8 @@ def process_whatsapp_text(text: str, sender_phone: str, community_id: str = "kwa
         bullets = "\n• ".join(brief["summary_bullets"])
         return f"🟢 *SENTRY COMMUNITY BRIEF [{community_id.upper()}]*\n\n• {bullets}\n\n_Send any incident report to log it in real time._"
 
-    if "?" in clean_text or lower_text.startswith("is ") or lower_text.startswith("where ") or lower_text.startswith("any "):
+    question_prefixes = ("is ", "where ", "any ", "what ", "who ", "how ", "when ", "why ", "can ", "could ", "do ", "does ", "are ")
+    if "?" in clean_text or lower_text.startswith(question_prefixes):
         rag_res = GemmaEngine.ask_rag(clean_text, community_id=community_id)
         citations_str = ", ".join(rag_res["citations"]) if rag_res["citations"] else "Live Reports"
         return f"🤖 *SENTRY AI BRAIN*\n\n{rag_res['answer']}\n\n📍 *Sources:* [{citations_str}]\n🛡️ *Community:* {community_id}"
