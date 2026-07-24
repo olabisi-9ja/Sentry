@@ -72,7 +72,7 @@ class GemmaEngine:
         return None
 
     @classmethod
-    def call_live_gemma_llm(cls, prompt: str, system_instruction: str = None, response_schema: dict = None, timeout: int = 15, model: str = "gemma-4-26b-a4b-it") -> str:
+    def call_live_gemma_llm(cls, prompt: str, system_instruction: str = None, response_schema: dict = None, timeout: int = 15, model: str = "gemini-1.5-flash") -> str:
         gemini_key = settings.GEMINI_API_KEY or os.getenv("GEMINI_API_KEY")
         if not gemini_key:
             logger.warning("GEMINI_API_KEY is not set. Cannot call LLM.")
@@ -108,6 +108,12 @@ class GemmaEngine:
         return None
 
     @classmethod
+    def call_llm(cls, prompt: str, system_instruction: str = None, response_schema: dict = None, timeout: int = 15, model: str = "gemini-1.5-flash") -> str:
+        if str(settings.USE_OLLAMA).lower() == "true":
+            return cls._call_ollama(prompt, system_instruction, response_schema, timeout)
+        return cls.call_live_gemma_llm(prompt, system_instruction, response_schema, timeout, model)
+
+    @classmethod
     def classify_and_triage(cls, raw_text: str, custom_location: str = None) -> dict:
         anonymized_text = cls.sanitize_pii(raw_text)
         
@@ -129,7 +135,7 @@ class GemmaEngine:
         prompt = f"Analyze this report and provide the JSON.\nRaw report: '{anonymized_text}'\nCustom location hint: {custom_location or 'None'}"
         
         try:
-            response_text = cls.call_live_gemma_llm(prompt, system_instruction, response_schema=CLASSIFY_SCHEMA)
+            response_text = cls.call_llm(prompt, system_instruction, response_schema=CLASSIFY_SCHEMA)
             if response_text:
                 triage_data = json.loads(response_text)
                 return {
@@ -333,7 +339,7 @@ class GemmaEngine:
             prompt = f"Context from recent reports in {community_id}:\n{context}\n\nQuestion: {question}\n\nAnswer:"
             
             try:
-                ans = cls.call_live_gemma_llm(prompt, system_instruction)
+                ans = cls.call_llm(prompt, system_instruction)
                 if not ans:
                     raise Exception("No response from LLM")
                 confidence = 96
@@ -355,7 +361,7 @@ class GemmaEngine:
         }
 
     @classmethod
-    def generate_situation_brief(cls, community_id: str = "kwasu_main", model: str = "gemma-4-26b-a4b-it") -> dict:
+    def generate_situation_brief(cls, community_id: str = "kwasu_main", model: str = "gemini-1.5-flash") -> dict:
         conn = get_db_connection()
         cursor = conn.cursor()
 
@@ -372,7 +378,7 @@ class GemmaEngine:
             prompt = f"Active Clusters in {community_id}:\n{context}\n\nProvide the bulleted summary."
             
             try:
-                ans = cls.call_live_gemma_llm(prompt, system_instruction, timeout=15 if model == "gemma-4-31b-it" else 5, model=model)
+                ans = cls.call_llm(prompt, system_instruction, timeout=15, model=model)
                 if ans:
                     bullets = [b.strip("-* ").strip() for b in ans.split("\n") if b.strip("-* ").strip()]
                     if not bullets:
