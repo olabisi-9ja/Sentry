@@ -916,6 +916,14 @@
       const q = document.getElementById('askQueryInput').value.trim();
       if (!q) return;
 
+      const btn = document.querySelector('button[onclick="submitAskQuery()"]');
+      const originalText = btn.innerText;
+      if (btn) {
+        btn.innerText = "Analyzing...";
+        btn.disabled = true;
+        btn.style.opacity = "0.7";
+      }
+
       try {
         const res = await fetch('/api/ask', {
           method: 'POST',
@@ -929,7 +937,15 @@
         document.getElementById('ragScore').innerText = `· ${data.confidence_score}% Match`;
         document.getElementById('ragCitationsText').innerText = `Sources: ${data.citations.join(', ')}`;
         card.style.display = 'block';
-      } catch (err) {}
+      } catch (err) {
+        console.error(err);
+      } finally {
+        if (btn) {
+            btn.innerText = originalText;
+            btn.disabled = false;
+            btn.style.opacity = "1";
+        }
+      }
     }
     
     function runQuickAsk(text) { document.getElementById('askQueryInput').value = text; submitAskQuery(); }
