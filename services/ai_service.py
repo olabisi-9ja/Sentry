@@ -72,30 +72,38 @@ class GemmaEngine:
         return None
 
     @classmethod
-    def call_live_gemma_llm(cls, prompt: str, system_instruction: str = None, response_schema: dict = None, timeout: int = 5, model: str = "gemini-1.5-flash") -> str:
+    def call_live_gemma_llm(cls, prompt: str, system_instruction: str = None, response_schema: dict = None, timeout: int = 15, model: str = "gemma-4-26b-a4b-it") -> str:
         gemini_key = settings.GEMINI_API_KEY or os.getenv("GEMINI_API_KEY")
         if not gemini_key:
             logger.warning("GEMINI_API_KEY is not set. Cannot call LLM.")
             return None
         
         try:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={gemini_key}"
-            generation_config = {}
-            if response_schema:
-                generation_config["responseMimeType"] = "application/json"
-                generation_config["responseJsonSchema"] = response_schema
+            from google import genai
+            from google.genai import types
+            
+            client = genai.Client(api_key=gemini_key)
+            
+            config_args = {}
+            if system_instruction:
+                config_args["system_instruction"] = system_instruction
                 
-            payload = {
-                "contents": [{"parts": [{"text": f"{system_instruction}\n\n{prompt}"}]}],
-                "generationConfig": generation_config
-            }
-            res = requests.post(url, json=payload, timeout=timeout)
-            if res.status_code == 200:
-                return res.json()["candidates"][0]["content"]["parts"][0]["text"]
-            else:
-                logger.error(f"Gemma 4 API Error: {res.status_code} - {res.text}")
+            if response_schema:
+                config_args["response_mime_type"] = "application/json"
+                config_args["response_schema"] = response_schema
+                
+            config = types.GenerateContentConfig(**config_args)
+            
+            response = client.models.generate_content(
+                model=model,
+                contents=prompt,
+                config=config
+            )
+            return response.text
+        except ImportError:
+            logger.error("google-genai SDK not installed. Run `pip install google-genai`.")
         except Exception as e:
-            logger.error(f"Gemma 4 Exception: {e}")
+            logger.error(f"Gemma 4 SDK Exception: {e}")
 
         return None
 
@@ -347,7 +355,7 @@ class GemmaEngine:
         }
 
     @classmethod
-    def generate_situation_brief(cls, community_id: str = "kwasu_main", model: str = "gemini-1.5-flash") -> dict:
+    def generate_situation_brief(cls, community_id: str = "kwasu_main", model: str = "gemma-4-26b-a4b-it") -> dict:
         conn = get_db_connection()
         cursor = conn.cursor()
 
