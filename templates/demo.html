@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0D0D14">
+<title>Sentry — WhatsApp Simulator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    color-scheme: dark;
+    --bg-base: #0f1115;
+    --surface: #1a1d24;
+    --surface-hover: rgba(255, 255, 255, 0.05);
+    --divider: #2a2e37;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    
+    --brand: #25D366; /* WhatsApp Green */
+    --brand-hover: #20ba5a;
+    
+    --teal: #00BA7C;
+    --security: #F91880;
+    --power: #FFD400;
+    --water: #1D9BF0;
+  }
+
+  * { 
+    box-sizing: border-box; margin: 0; padding: 0; 
+  }
+
+  body {
+    background-color: var(--bg-base);
+    font-family: 'Sora', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    line-height: 1.5;
+  }
+
+  .app-container {
+    width: 100%;
+    max-width: 600px;
+    min-height: 100vh;
+    border-left: 1px solid var(--divider);
+    border-right: 1px solid var(--divider);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .top-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(13, 13, 20, 0.75);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--divider);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 53px;
+  }
+
+  .header-logo {
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: 0.1em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+  }
+
+  .header-logo svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .demo-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 16px;
+    gap: 16px;
+    height: calc(100vh - 53px);
+  }
+
+  .simulator-config {
+    background: var(--surface);
+    border: 1px solid var(--divider);
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .form-group label {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  .form-control {
+    background: var(--bg-base);
+    border: 1px solid var(--divider);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+  }
+
+  .form-control:focus {
+    border-color: var(--brand);
+  }
+
+  .chat-panel {
+    border: 1px solid var(--divider);
+    border-radius: 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+  }
+
+  .chat-history {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .chat-bubble {
+    max-width: 80%;
+    padding: 12px 16px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+  }
+
+  .chat-bubble.incoming {
+    align-self: flex-start;
+    background: var(--surface);
+    border: 1px solid var(--divider);
+    border-bottom-left-radius: 4px;
+  }
+
+  .chat-bubble.outgoing {
+    align-self: flex-end;
+    background: rgba(37, 211, 102, 0.15);
+    border: 1px solid rgba(37, 211, 102, 0.3);
+    border-bottom-right-radius: 4px;
+  }
+
+  .chat-input-area {
+    border-top: 1px solid var(--divider);
+    padding: 12px;
+    display: flex;
+    gap: 12px;
+  }
+
+  .chat-input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--divider);
+    border-radius: 9999px;
+    padding: 10px 20px;
+    color: var(--text);
+    outline: none;
+    font-family: inherit;
+  }
+
+  .btn-send {
+    background: var(--brand);
+    color: #fff;
+    border: none;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-send:hover {
+    background: var(--brand-hover);
+  }
+</style>
+</head>
+<body>
+
+  <div class="app-container">
+    <header class="top-header">
+      <div class="header-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+        </svg>
+        WhatsApp Simulator
+      </div>
+    </header>
+
+    <div class="demo-content">
+      <div class="simulator-config">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label for="senderPhone">Sender Number</label>
+            <input type="text" class="form-control" id="senderPhone" value="+2348011112222">
+          </div>
+          <div class="form-group">
+            <label for="communityId">Community Sector</label>
+            <select class="form-control" id="communityId">
+              <option value="kwasu_main">kwasu_main</option>
+              <option value="ilorin_central">ilorin_central</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-panel">
+        <div class="chat-history" id="chatHistory">
+          <div class="chat-bubble incoming">
+            🟢 <b>System Connected</b>
+            Type a message below to simulate WhatsApp intake. You can report incidents (e.g. "Water leak near Gate A") or query updates (e.g. "brief").
+          </div>
+        </div>
+        
+        <div class="chat-input-area">
+          <input type="text" class="chat-input" id="chatMessage" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendMessage()">
+          <button class="btn-send" onclick="sendMessage()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById('chatMessage');
+      const body = input.value.trim();
+      const sender = document.getElementById('senderPhone').value.trim();
+      const community = document.getElementById('communityId').value;
+      const history = document.getElementById('chatHistory');
+
+      if (!body) return;
+
+      // Add user message
+      const userBubble = document.createElement('div');
+      userBubble.className = 'chat-bubble outgoing';
+      userBubble.innerText = body;
+      history.appendChild(userBubble);
+      input.value = '';
+      history.scrollTop = history.scrollHeight;
+
+      // Call Simulator API
+      try {
+        const formData = new FormData();
+        formData.append('From', 'whatsapp:' + sender);
+        formData.append('Body', body);
+        formData.append('community_id', community);
+
+        const res = await fetch('/api/whatsapp/simulate', {
+          method: 'POST',
+          body: formData
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          const systemBubble = document.createElement('div');
+          systemBubble.className = 'chat-bubble incoming';
+          systemBubble.innerHTML = data.whatsapp_reply.replace(/\n/g, '<br>');
+          history.appendChild(systemBubble);
+        } else {
+          throw new Error();
+        }
+      } catch (e) {
+        const errBubble = document.createElement('div');
+        errBubble.className = 'chat-bubble incoming';
+        errBubble.style.borderColor = 'var(--security)';
+        errBubble.innerText = '⚠️ Connection error. Make sure the backend server is running.';
+        history.appendChild(errBubble);
+      }
+      history.scrollTop = history.scrollHeight;
+    }
+  </script>
+</body>
+</html>

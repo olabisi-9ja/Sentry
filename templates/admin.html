@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0D0D14">
+<title>Sentry — Admin Control</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    color-scheme: dark;
+    --bg-base: #0f1115;
+    --surface: #1a1d24;
+    --surface-hover: rgba(255, 255, 255, 0.05);
+    --divider: #2a2e37;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    
+    --brand: #64748b;
+    --brand-hover: #cbd5e1;
+    
+    --teal: #00BA7C;
+    --security: #F91880;
+    --power: #FFD400;
+    --water: #1D9BF0;
+  }
+
+  * { 
+    box-sizing: border-box; margin: 0; padding: 0; 
+  }
+
+  body {
+    background-color: var(--bg-base);
+    font-family: 'Sora', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    line-height: 1.5;
+  }
+
+  .app-container {
+    width: 100%;
+    max-width: 600px;
+    min-height: 100vh;
+    border-left: 1px solid var(--divider);
+    border-right: 1px solid var(--divider);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .top-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(13, 13, 20, 0.75);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--divider);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 53px;
+  }
+
+  .header-logo {
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: 0.1em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+  }
+
+  .header-logo svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .passcode-overlay {
+    position: absolute;
+    inset: 0;
+    background: var(--bg-base);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .passcode-input {
+    background: var(--surface);
+    border: 1px solid var(--divider);
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-size: 16px;
+    text-align: center;
+    outline: none;
+    margin-bottom: 16px;
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .btn-submit {
+    background: var(--text);
+    color: var(--bg-base);
+    font-weight: 700;
+    font-size: 15px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    max-width: 280px;
+    transition: opacity 0.2s;
+  }
+
+  .btn-submit:hover {
+    opacity: 0.9;
+  }
+
+  .admin-content {
+    display: none;
+    padding: 16px;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--divider);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .stat-val {
+    font-size: 24px;
+    font-weight: 800;
+  }
+
+  .triage-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .section-title {
+    font-size: 16px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .triage-card {
+    background: rgba(249, 24, 128, 0.05);
+    border: 1px solid rgba(249, 24, 128, 0.2);
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .triage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .triage-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .triage-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-action {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid var(--divider);
+    background: var(--surface);
+    color: var(--text);
+    transition: all 0.2s;
+  }
+
+  .btn-action.verify {
+    border-color: var(--teal);
+    color: var(--teal);
+  }
+  .btn-action.verify:hover {
+    background: rgba(0, 186, 124, 0.1);
+  }
+
+  .btn-action.dispatch {
+    border-color: var(--power);
+    color: var(--power);
+  }
+  .btn-action.dispatch:hover {
+    background: rgba(255, 212, 0, 0.1);
+  }
+
+  .btn-action.resolve {
+    border-color: var(--brand-hover);
+    color: var(--text);
+  }
+  .btn-action.resolve:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .btn-util {
+    background: var(--surface);
+    border: 1px solid var(--divider);
+    padding: 10px 16px;
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.2s;
+  }
+  .btn-util:hover {
+    background: var(--surface-hover);
+  }
+</style>
+</head>
+<body>
+
+  <div class="app-container">
+    <header class="top-header">
+      <div class="header-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        </svg>
+        Sentry Admin
+      </div>
+      <div style="font-size: 12px; font-weight: 800; color: var(--security);" id="statusIndicator">LOCKED</div>
+    </header>
+
+    <!-- Passcode Gate -->
+    <div class="passcode-overlay" id="passcodeGate">
+      <h2 style="font-weight: 800; font-size: 20px; margin-bottom: 8px;">Access Restricted</h2>
+      <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px; text-align: center;">Enter your administrator passcode to proceed.</p>
+      <input type="password" class="passcode-input" id="passcodeVal" placeholder="Passcode" onkeydown="if(event.key==='Enter') verifyPasscode()">
+      <button class="btn-submit" onclick="verifyPasscode()">Authenticate</button>
+      <p id="errorMsg" style="color: var(--security); font-size: 12px; margin-top: 12px; display: none;">Invalid Passcode</p>
+    </div>
+
+    <!-- Admin Console Dashboard -->
+    <div class="admin-content" id="adminContent">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-label">Total Reports</span>
+          <span class="stat-val" id="statTotal">-</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Active Clusters</span>
+          <span class="stat-val" id="statClusters">-</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Urgent Queue</span>
+          <span class="stat-val" id="statUrgent" style="color: var(--security);">-</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">System Status</span>
+          <span class="stat-val" id="statStatus" style="font-size: 16px; margin-top: 8px;">-</span>
+        </div>
+      </div>
+
+      <button class="btn-util" id="regenBtn" onclick="regenerateBrief()">Regenerate AI Brief (Gemma 4)</button>
+
+      <div class="triage-section">
+        <div class="section-title">
+          <span>Urgent Triage Queue</span>
+          <span id="queueCount" style="color: var(--text-muted); font-size: 13px;">0 items</span>
+        </div>
+        <div id="queueList" style="display:flex; flex-direction:column; gap:12px;">
+          <!-- Triage Items -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let adminPasscode = localStorage.getItem('sentry_admin_passcode') || '';
+
+    if (adminPasscode) {
+      document.getElementById('passcodeGate').style.display = 'none';
+      document.getElementById('adminContent').style.display = 'flex';
+      document.getElementById('statusIndicator').innerText = 'CONNECTED';
+      document.getElementById('statusIndicator').style.color = 'var(--teal)';
+      loadStats();
+      loadQueue();
+    }
+
+    async function verifyPasscode() {
+      const p = document.getElementById('passcodeVal').value;
+      if (!p) return;
+
+      // Test passcode against stats API
+      try {
+        const res = await fetch('/api/admin/stats', {
+          headers: { 'x-admin-passcode': p }
+        });
+        if (res.ok) {
+          adminPasscode = p;
+          localStorage.setItem('sentry_admin_passcode', p);
+          document.getElementById('passcodeGate').style.display = 'none';
+          document.getElementById('adminContent').style.display = 'flex';
+          document.getElementById('statusIndicator').innerText = 'CONNECTED';
+          document.getElementById('statusIndicator').style.color = 'var(--teal)';
+          loadStats();
+          loadQueue();
+        } else {
+          document.getElementById('errorMsg').style.display = 'block';
+        }
+      } catch (e) {
+        document.getElementById('errorMsg').style.display = 'block';
+      }
+    }
+
+    async function loadStats() {
+      try {
+        const res = await fetch('/api/admin/stats', {
+          headers: { 'x-admin-passcode': adminPasscode }
+        });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        document.getElementById('statTotal').innerText = data.total_reports;
+        document.getElementById('statClusters').innerText = data.open_incidents;
+        document.getElementById('statUrgent').innerText = data.urgent_unresolved;
+        document.getElementById('statStatus').innerText = data.campus_status;
+        if (data.campus_status === 'NORMAL') {
+          document.getElementById('statStatus').style.color = 'var(--teal)';
+        } else if (data.campus_status === 'ELEVATED') {
+          document.getElementById('statStatus').style.color = 'var(--power)';
+        } else {
+          document.getElementById('statStatus').style.color = 'var(--security)';
+        }
+      } catch (e) {}
+    }
+
+    async function loadQueue() {
+      try {
+        const res = await fetch('/api/admin/urgent-queue', {
+          headers: { 'x-admin-passcode': adminPasscode }
+        });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        
+        const list = document.getElementById('queueList');
+        list.innerHTML = '';
+        document.getElementById('queueCount').innerText = `${data.count} items`;
+
+        if (!data.urgent_reports || data.urgent_reports.length === 0) {
+          list.innerHTML = `<div style="text-align:center; padding:32px; color:var(--text-muted); font-size:14px;">Urgent queue is clean.</div>`;
+          return;
+        }
+
+        data.urgent_reports.forEach(r => {
+          const card = document.createElement('div');
+          card.className = 'triage-card';
+          
+          card.innerHTML = `
+            <div class="triage-header">
+              <span style="font-weight:800; font-size:14px; color:var(--security)">URGENT · ${r.category.toUpperCase()}</span>
+              <span class="triage-meta">${r.location}</span>
+            </div>
+            <div style="font-size:14px; line-height:1.5;">${r.anonymized_text}</div>
+            <div style="font-size:12px; color:var(--text-muted); display:flex; justify-content:space-between;">
+              <span>Score: ${r.urgency_score}</span>
+              <span>Status: ${r.status.toUpperCase()}</span>
+            </div>
+            <div class="triage-actions">
+              <button class="btn-action verify" onclick="triageAction(${r.id}, 'verify')">Verify</button>
+              <button class="btn-action dispatch" onclick="triageAction(${r.id}, 'dispatch')">Dispatch</button>
+              <button class="btn-action resolve" onclick="triageAction(${r.id}, 'resolve')">Resolve</button>
+            </div>
+          `;
+          list.appendChild(card);
+        });
+      } catch (e) {}
+    }
+
+    async function triageAction(reportId, action) {
+      try {
+        const res = await fetch(`/api/admin/triage/${reportId}`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'x-admin-passcode': adminPasscode 
+          },
+          body: JSON.stringify({ action: action, notes: `Admin processed report via dashboard: ${action}` })
+        });
+        if (res.ok) {
+          loadStats();
+          loadQueue();
+        }
+      } catch (e) {}
+    }
+
+    async function regenerateBrief() {
+      const btn = document.getElementById('regenBtn');
+      btn.innerText = 'Regenerating Brief...';
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/admin/brief/generate', {
+          method: 'POST',
+          headers: { 'x-admin-passcode': adminPasscode }
+        });
+        if (res.ok) {
+          alert('Brief regenerated successfully.');
+        } else {
+          alert('Error regenerating brief.');
+        }
+      } catch (e) {
+        alert('Request failed.');
+      } finally {
+        btn.innerText = 'Regenerate AI Brief (Gemma 4)';
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

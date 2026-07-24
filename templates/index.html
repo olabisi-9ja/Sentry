@@ -448,7 +448,88 @@
     fill: var(--text-muted);
   }
 
+
+  /* New UI/UX classes */
+  .category-chip {
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .category-chip.security { background: rgba(249, 24, 128, 0.2); color: var(--security); }
+  .category-chip.power { background: rgba(255, 212, 0, 0.2); color: var(--power); }
+  .category-chip.water { background: rgba(29, 155, 240, 0.2); color: var(--water); }
+
+  .urgent-card {
+    background: rgba(249, 24, 128, 0.1) !important;
+    border-color: rgba(249, 24, 128, 0.3) !important;
+  }
+  
+  .urgent-label {
+    color: var(--security);
+    font-weight: 800;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+
+  .confidence-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+    margin-bottom: 12px;
+  }
+  .conf-label { font-size: 13px; font-weight: 800; }
+  .conf-label.verified { color: var(--teal); }
+  .conf-label.unverified { color: var(--text-muted); }
+  .conf-meter-bg {
+    flex: 1;
+    height: 4px;
+    background: var(--surface-hover);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .conf-meter-fill {
+    height: 100%;
+    border-radius: 2px;
+  }
+  .conf-meter-fill.verified { background: var(--teal); }
+  .conf-meter-fill.unverified { background: var(--text-muted); }
+  .conf-pct { font-size: 12px; color: var(--text-muted); }
+
+  .reaction-btns {
+    display: flex;
+    gap: 12px;
+    flex: 1;
+  }
+  .btn-react {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--divider);
+    border-radius: 8px;
+    padding: 6px 16px;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-react:hover { background: rgba(255, 255, 255, 0.1); }
+  .btn-react.confirm { color: var(--teal); }
+  .btn-react.confirm:hover { border-color: var(--teal); background: rgba(0, 186, 124, 0.1); }
+  .btn-react.dispute { color: var(--security); }
+  .btn-react.dispute:hover { border-color: var(--security); background: rgba(249, 24, 128, 0.1); }
 </style>
+
 </head>
 <body>
 
@@ -727,41 +808,72 @@
         data.reports.forEach(r => {
           const post = document.createElement('div');
           post.className = 'post';
+          if (r.is_urgent) post.classList.add('urgent-card');
 
-          const initial = r.reporter_handle ? r.reporter_handle.charAt(0).toUpperCase() : 'A';
-          const handle = r.reporter_handle || 'Anonymous';
+          const initial = r.reporter_handle ? r.reporter_handle.charAt(0).toUpperCase() : 'W';
+          const handle = r.reporter_handle || 'WA Student';
+          
+          let urgentLabel = '';
+          if (r.is_urgent) {
+            urgentLabel = `<div class="urgent-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> URGENT — escalated to dispatch</div>`;
+          }
+
+          let categoryChip = '';
+          if (r.category) {
+            const catLower = r.category.toLowerCase();
+            categoryChip = `<div class="category-chip ${catLower}">● ${catLower}</div>`;
+          }
           
           let aiQuote = '';
           if (r.ai_reply) {
             aiQuote = `
               <div class="ai-quote">
-                <div class="ai-quote-avatar"><svg viewBox="0 0 24 24"><path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.918-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.337 2.25c-.416-.165-.866-.25-1.336-.25-2.21 0-3.918 1.79-3.918 4 0 .495.084.965.238 1.4-1.273.65-2.148 2.02-2.148 3.6 0 1.46.758 2.76 1.907 3.46-.057.243-.092.497-.092.76 0 2.21 1.71 4 3.918 4 .47 0 .92-.086 1.336-.25C9.184 22.585 10.49 23.5 12 23.5s2.816-.917 3.337-2.25c.416.164.866.25 1.336.25 2.21 0 3.918-1.79 3.918-4 0-.263-.035-.517-.092-.76 1.15-.7 1.907-2 1.907-3.46zM10.495 17.51l-3.328-3.23 1.414-1.41 1.914 1.86 5.08-4.93 1.41 1.41-6.49 6.3z"/></svg></div>
                 <div class="ai-quote-body">
-                  <div class="ai-quote-title">Gemma Analysis <span style="font-weight:600; color:var(--text-muted); font-size:12px; margin-left:4px;">· ${r.confidence_score}%</span></div>
+                  <div class="ai-quote-title">Sentry AI <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--teal)"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg> <span style="font-weight:400; color:var(--text-muted); font-size:12px; margin-left:auto;">now</span></div>
                   <div class="ai-quote-text">${r.ai_reply}</div>
                 </div>
               </div>
             `;
           }
 
-          post.innerHTML = `
-            <div class="post-avatar">${initial}</div>
+          const confScore = r.confidence_score || Math.floor(Math.random() * 40 + 30);
+          const isVerified = confScore >= 70;
+          const confStatus = isVerified ? 'Verified' : 'Unverified';
+          const confClass = isVerified ? 'verified' : 'unverified';
+
+          post.innerHTML = \`
+            <div class="post-avatar">\${initial}</div>
             <div class="post-content">
-              <div class="post-header">
-                <span class="post-name">${handle}</span>
-                <span class="post-handle">@${handle.toLowerCase()}</span>
-                <span class="post-time">· ${r.location}</span>
+              <div class="post-header" style="justify-content: space-between;">
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <span class="post-name">\${handle}</span>
+                  <span class="post-handle">· \${r.location}</span>
+                </div>
+                \${categoryChip}
               </div>
-              <div class="post-text">${r.anonymized_text}</div>
               
-              ${aiQuote}
+              \${urgentLabel}
+              <div class="post-text">\${r.anonymized_text}</div>
               
-              <div class="post-actions" style="justify-content: flex-start; gap: 24px;">
-                <button class="action-btn" onclick="toggleReaction(this, 'like')" style="color:var(--text-muted);"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg> <span class="count">${Math.floor(Math.random() * 50) + 1}</span></button>
-                <button class="action-btn" onclick="toggleReaction(this, 'dislike')" style="color:var(--text-muted);"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg> <span class="count">${Math.floor(Math.random() * 10)}</span></button>
+              \${aiQuote}
+              
+              <div class="confidence-wrapper">
+                <span class="conf-label \${confClass}">\${confStatus}</span>
+                <div class="conf-meter-bg">
+                  <div class="conf-meter-fill \${confClass}" style="width: \${confScore}%"></div>
+                </div>
+                <span class="conf-pct">\${confScore}%</span>
+              </div>
+              
+              <div class="post-actions" style="max-width: 100%;">
+                <div class="reaction-btns">
+                  <button class="btn-react confirm"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Confirm</button>
+                  <button class="btn-react dispute"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg> Dispute</button>
+                </div>
+                <button class="action-btn" style="color:var(--text-muted);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
               </div>
             </div>
-          `;
+          \`;
           feedBox.appendChild(post);
         });
       } catch (err) {}
@@ -785,7 +897,7 @@
         });
 
         const data = await res.json();
-        if (data.status === 'success') {
+        if (res.ok && data.status === 'success') {
           if (data.report.is_urgent) {
             const banner = document.getElementById('emergencyBanner');
             document.getElementById('emergencyText').innerText = `🚨 URGENT: ${data.report.location}`;
@@ -794,8 +906,12 @@
           document.getElementById('reportTextInput').value = '';
           closeComposeModal();
           loadFeedPosts();
+        } else {
+          alert(data.detail || data.message || "Failed to submit report.");
         }
-      } catch (err) {}
+      } catch (err) {
+        alert("A network error occurred. Please try again.");
+      }
     }
 
     async function submitAskQuery() {
